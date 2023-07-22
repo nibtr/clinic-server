@@ -16,3 +16,22 @@ The repo for the UI (Client) can be found [here](https://github.com/nhthieu/dent
 - [Nam Vu Hoai](https://github.com/namhoai1109)
 - [Man Nguyen Huynh](https://github.com/nhman2002)
 - [Trung Thieu Vinh](https://github.com/tvtrungg)
+
+## Development
+
+### Prerequisites
+
+- Nodejs
+- pnpm
+
+### Install dependencies
+
+```bash
+pnpm ci
+```
+
+### Run the server
+
+```bash
+pnpm run dev
+```

@@ -1,1 +1,0 @@
-INSERT INTO Dentist (name, age) VALUES ('John', 30);
