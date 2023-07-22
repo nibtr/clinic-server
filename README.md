@@ -10,14 +10,7 @@ The docs & diagrams of the project can be found [here](https://github.com/nhthie
 
 The repo for the UI (Client) can be found [here](https://github.com/nhthieu/dental-clinic-client)
 
-## Contributors
-
-- [Hieu Nguyen Ho Trung](https://github.com/nhthieu)
-- [Nam Vu Hoai](https://github.com/namhoai1109)
-- [Man Nguyen Huynh](https://github.com/nhman2002)
-- [Trung Thieu Vinh](https://github.com/tvtrungg)
-
-## Development
+## Quick start
 
 ### Prerequisites
 
@@ -35,3 +28,10 @@ npm ci
 ```bash
 npm run dev
 ```
+
+## Contributors
+
+- [Hieu Nguyen Ho Trung](https://github.com/nhthieu)
+- [Nam Vu Hoai](https://github.com/namhoai1109)
+- [Man Nguyen Huynh](https://github.com/nhman2002)
+- [Trung Thieu Vinh](https://github.com/tvtrungg)
