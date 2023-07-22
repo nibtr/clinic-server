@@ -22,16 +22,16 @@ The repo for the UI (Client) can be found [here](https://github.com/nhthieu/dent
 ### Prerequisites
 
 - Nodejs
-- pnpm
+- npm
 
 ### Install dependencies
 
 ```bash
-pnpm ci
+npm ci
 ```
 
 ### Run the server
 
 ```bash
-pnpm run dev
+npm run dev
 ```
