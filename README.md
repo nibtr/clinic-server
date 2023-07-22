@@ -8,7 +8,7 @@ The docs & diagrams of the project can be found [here](https://github.com/nhthie
 
 ## Client
 
-to be added
+The repo for the UI (Client) can be found [here](https://github.com/nhthieu/dental-clinic-client)
 
 ## Contributors
 
