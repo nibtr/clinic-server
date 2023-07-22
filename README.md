@@ -27,7 +27,7 @@ The repo for the UI (Client) can be found [here](https://github.com/nhthieu/dent
 ### Install dependencies
 
 ```bash
-pnpm ci
+pnpm i --frozen-lockfile
 ```
 
 ### Run the server
