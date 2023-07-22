@@ -2,11 +2,16 @@ import express, { Express, Request, Response } from 'express';
 import dotenv from 'dotenv';
 import swaggerJsdoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
+import cors from 'cors';
+import router from './routes';
 
 dotenv.config();
 
 const app: Express = express();
 const port = process.env.PORT || 3000;
+
+// cors
+app.use(cors());
 
 // swagger
 const options = {
@@ -24,9 +29,8 @@ const options = {
       },
     ],
   },
-  apis: ['./routes/*.ts'],
+  apis: ['./routes/api/*.ts'],
 };
-
 const specs = swaggerJsdoc(options);
 app.use(
   '/api-docs',
@@ -34,6 +38,8 @@ app.use(
   swaggerUi.setup(specs, { explorer: true })
 );
 
+// routes
+app.use('/api', router);
 app.get('/', (req: Request, res: Response) => {
   res.send('Hello, World!');
 });
