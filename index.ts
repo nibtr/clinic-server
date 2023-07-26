@@ -1,9 +1,9 @@
-import express, { Express, Request, Response } from 'express';
-import dotenv from 'dotenv';
-import swaggerJsdoc from 'swagger-jsdoc';
-import swaggerUi from 'swagger-ui-express';
-import cors from 'cors';
-import router from './routes';
+import express, { Express, Request, Response } from "express";
+import dotenv from "dotenv";
+import swaggerJsdoc from "swagger-jsdoc";
+import swaggerUi from "swagger-ui-express";
+import cors from "cors";
+import router from "./routes";
 
 dotenv.config();
 
@@ -16,12 +16,12 @@ app.use(cors());
 // swagger
 const options = {
   definition: {
-    openapi: '3.0.0',
+    openapi: "3.0.0",
     info: {
-      title: 'Express API with Swagger',
-      version: '0.1.0',
+      title: "Express API with Swagger",
+      version: "0.1.0",
       description:
-        'This is the Dental Clinic application made with Express and documented with Swagger',
+        "This is the Dental Clinic application made with Express and documented with Swagger",
     },
     servers: [
       {
@@ -29,19 +29,19 @@ const options = {
       },
     ],
   },
-  apis: ['./routes/api/*.ts'],
+  apis: ["./routes/api/*.ts"],
 };
 const specs = swaggerJsdoc(options);
 app.use(
-  '/api-docs',
+  "/api-docs",
   swaggerUi.serve,
   swaggerUi.setup(specs, { explorer: true })
 );
 
 // routes
-app.use('/api', router);
-app.get('/', (req: Request, res: Response) => {
-  res.send('Hello, World!');
+app.use("/api", router);
+app.get("/", (req: Request, res: Response) => {
+  res.send("Hello, World!");
 });
 
 app.listen(port, () => {
