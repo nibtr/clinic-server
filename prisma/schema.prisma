@@ -42,39 +42,55 @@ model Staff {
 }
 
 model Dentist {
-  id         Int         @id @default(autoincrement())
-  personel   Personel?   @relation(fields: [personelId], references: [id])
-  personelId Int?        @unique
-  assistant  Assistant[]
+  id         Int        @id @default(autoincrement())
+  personel   Personel?  @relation(fields: [personelId], references: [id])
+  personelId Int?       @unique
+  assistant  Assistant?
   session    Session[]
   schedule   Schedule[]
 }
 
+model Schedule {
+  id        Int      @id @default(autoincrement())
+  dentist   Dentist? @relation(fields: [dentistId], references: [id])
+  dentistId Int?     @unique
+
+  day   Day? @relation(fields: [dayId], references: [id])
+  dayId Int? @unique
+}
+
+model Day {
+  id       Int        @id @default(autoincrement())
+  schedule Schedule[]
+
+  day DateTime
+}
+
+model Assistant {
+  id        Int       @id @default(autoincrement())
+  dentist   Dentist?  @relation(fields: [dentistId], references: [id])
+  dentistId Int?      @unique
+  session   Session[]
+}
+
 model Patient {
-  id         Int             @id @default(autoincrement())
-  personel   Personel?       @relation(fields: [personelId], references: [id])
-  personelId Int?            @unique
-  payment    PaymentRecord[]
-  session    Session[]
+  id            Int            @id @default(autoincrement())
+  personel      Personel?      @relation(fields: [personelId], references: [id])
+  personelId    Int?           @unique
+  paymentRecord PaymentRecord?
+  session       Session[]
 
   drugContraindications String?
   oralHealthStatus      String?
   allergicStatus        String?
 }
 
-model Assistant {
-  id        Int      @id @default(autoincrement())
-  dentist   Dentist? @relation(fields: [dentistId], references: [id])
-  dentistId Int?     @unique
-  session   Session  @relation(fields: [sessionId], references: [id])
-  sessionId Int
-}
-
 model PaymentRecord {
-  id        Int      @id @default(autoincrement())
-  patient   Patient? @relation(fields: [patientId], references: [id])
-  patientId Int?     @unique
-  // treatment Treatment[]
+  id                 Int               @id @default(autoincrement())
+  patient            Patient?          @relation(fields: [patientId], references: [id])
+  patientId          Int?              @unique
+  treatmentSession   TreatmentSession? @relation(fields: [treatmentSessionId], references: [id])
+  treatmentSessionId Int?              @unique
 
   date    DateTime
   total   Int
@@ -84,14 +100,19 @@ model PaymentRecord {
 }
 
 model Session {
-  id          Int       @id @default(autoincrement())
-  patient     Patient?  @relation(fields: [patientId], references: [id])
-  patientId   Int?      @unique
-  dentist     Dentist?  @relation(fields: [dentistId], references: [id])
-  dentistId   Int?      @unique
-  assistant   Assistant[]
-  room        Room[]
-  
+  id          Int        @id @default(autoincrement())
+  patient     Patient?   @relation(fields: [patientId], references: [id])
+  patientId   Int?       @unique
+  dentist     Dentist?   @relation(fields: [dentistId], references: [id])
+  dentistId   Int?
+  assistant   Assistant? @relation(fields: [assistantId], references: [id])
+  assistantId Int?
+  room        Room?      @relation(fields: [roomId], references: [id])
+  roomId      Int
+
+  reExaminationSession ReExaminationSession?
+  ExaminationSession   ExaminationSession?
+  TreatmentSession     TreatmentSession?
 
   time   DateTime
   note   String?
@@ -99,27 +120,107 @@ model Session {
 }
 
 model Room {
-  id        Int      @id @default(autoincrement())
-  session   Session? @relation(fields: [sessionId], references: [id])
-  sessionId Int?     @unique
+  id      Int       @id @default(autoincrement())
+  session Session[]
 
   name String
   code String
 }
 
-model Schedule{
-  id        Int      @id @default(autoincrement())
-  dentist   Dentist? @relation(fields: [dentistId], references: [id])
-  dentistId Int?     @unique
-  schedule  Day[]
-
+model ReExaminationSession {
+  id                   Int                 @id @default(autoincrement())
+  session              Session?            @relation(fields: [sessionId], references: [id])
+  sessionId            Int?                @unique
+  ExaminationSession   ExaminationSession? @relation(fields: [examinationSessionId], references: [id])
+  examinationSessionId Int?
 }
 
-model Day{
-  id        Int      @id @default(autoincrement())
-  schedule  Schedule? @relation(fields: [scheduleId], references: [id])
-  scheduleId Int?     @unique
+model ExaminationSession {
+  id                   Int                    @id @default(autoincrement())
+  session              Session?               @relation(fields: [sessionId], references: [id])
+  sessionId            Int?                   @unique
+  reExaminationSession ReExaminationSession[]
+}
 
-  day String
-  time String
+model TreatmentSession {
+  id            Int            @id @default(autoincrement())
+  session       Session?       @relation(fields: [sessionId], references: [id])
+  sessionId     Int?           @unique
+  category      Category?      @relation(fields: [categoryId], references: [id])
+  categoryId    Int?           @unique
+  prescription  Prescription[]
+  toothSession  ToothSession[]
+  paymentRecord PaymentRecord?
+
+  healthNote  String?
+  description String?
+}
+
+model Procedure {
+  id         Int       @id @default(autoincrement())
+  category   Category? @relation(fields: [categoryId], references: [id])
+  categoryId Int?      @unique
+
+  description String
+  code        String
+  name        String
+  fee         Int
+}
+
+model Category {
+  id               Int                @id @default(autoincrement())
+  procedure        Procedure[]
+  treatmentSession TreatmentSession[]
+
+  description String
+  code        String
+  name        String
+}
+
+model Prescription {
+  id                 Int               @id @default(autoincrement())
+  treatmentSession   TreatmentSession? @relation(fields: [treatmentSessionId], references: [id])
+  treatmentSessionId Int?              @unique
+  drug               Drug?             @relation(fields: [drugId], references: [id])
+  drugId             Int?              @unique
+
+  note String
+}
+
+model Drug {
+  id           Int            @id @default(autoincrement())
+  prescription Prescription[]
+
+  name        String
+  description String
+  price       Int
+  code        String
+}
+
+model Tooth {
+  id           Int            @id @default(autoincrement())
+  ToothSession ToothSession[]
+
+  type String
+  name String
+}
+
+model ToothSession {
+  id                 Int               @id @default(autoincrement())
+  tooth              Tooth?            @relation(fields: [toothId], references: [id])
+  toothId            Int?              @unique
+  treatmentSession   TreatmentSession? @relation(fields: [treatmentSessionId], references: [id])
+  treatmentSessionId Int?              @unique
+
+  order Int
+}
+
+model Appointment{
+  id Int @id @default(autoincrement())
+
+  appointmentTime DateTime
+  requestTime DateTime
+  note String?
+  patientName String
+  patientPhone String?
 }
