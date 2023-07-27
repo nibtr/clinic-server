@@ -10,3 +10,116 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Account {
+  id         Int       @id @default(autoincrement())
+  personelId Personel?
+
+  username String  @unique
+  password String
+  email    String?
+}
+
+model Personel {
+  id        Int      @id @default(autoincrement())
+  account   Account? @relation(fields: [accountId], references: [id])
+  accountId Int?     @unique
+  staff     Staff?
+  dentist   Dentist?
+  patient   Patient?
+
+  nationalId String   @unique
+  name       String
+  dob        DateTime
+  gender     String
+  age        String
+  phone      String?
+}
+
+model Staff {
+  id         Int       @id @default(autoincrement())
+  personel   Personel? @relation(fields: [personelId], references: [id])
+  personelId Int?      @unique
+}
+
+model Dentist {
+  id         Int         @id @default(autoincrement())
+  personel   Personel?   @relation(fields: [personelId], references: [id])
+  personelId Int?        @unique
+  assistant  Assistant[]
+  session    Session[]
+  schedule   Schedule[]
+}
+
+model Patient {
+  id         Int             @id @default(autoincrement())
+  personel   Personel?       @relation(fields: [personelId], references: [id])
+  personelId Int?            @unique
+  payment    PaymentRecord[]
+  session    Session[]
+
+  drugContraindications String?
+  oralHealthStatus      String?
+  allergicStatus        String?
+}
+
+model Assistant {
+  id        Int      @id @default(autoincrement())
+  dentist   Dentist? @relation(fields: [dentistId], references: [id])
+  dentistId Int?     @unique
+  session   Session  @relation(fields: [sessionId], references: [id])
+  sessionId Int
+}
+
+model PaymentRecord {
+  id        Int      @id @default(autoincrement())
+  patient   Patient? @relation(fields: [patientId], references: [id])
+  patientId Int?     @unique
+  // treatment Treatment[]
+
+  date    DateTime
+  total   Int
+  paid    Int
+  changed Int
+  method  String
+}
+
+model Session {
+  id          Int       @id @default(autoincrement())
+  patient     Patient?  @relation(fields: [patientId], references: [id])
+  patientId   Int?      @unique
+  dentist     Dentist?  @relation(fields: [dentistId], references: [id])
+  dentistId   Int?      @unique
+  assistant   Assistant[]
+  room        Room[]
+  
+
+  time   DateTime
+  note   String?
+  status String
+}
+
+model Room {
+  id        Int      @id @default(autoincrement())
+  session   Session? @relation(fields: [sessionId], references: [id])
+  sessionId Int?     @unique
+
+  name String
+  code String
+}
+
+model Schedule{
+  id        Int      @id @default(autoincrement())
+  dentist   Dentist? @relation(fields: [dentistId], references: [id])
+  dentistId Int?     @unique
+  schedule  Day[]
+
+}
+
+model Day{
+  id        Int      @id @default(autoincrement())
+  schedule  Schedule? @relation(fields: [scheduleId], references: [id])
+  scheduleId Int?     @unique
+
+  day String
+  time String
+}
