@@ -23,6 +23,10 @@ The repo for the UI (Client) can be found [here](https://github.com/nhthieu/dent
 npm ci
 ```
 
+### Initialize the database
+
+Refer to the [CONTRIBUTE.md](/CONTRIBUTE.md) file for instructions on how to initialize the database
+
 ### Run the server
 
 ```bash

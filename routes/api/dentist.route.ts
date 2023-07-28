@@ -1,24 +1,24 @@
-import express, { Request, Response } from 'express';
+import express from 'express';
+import { getDentists } from '../../controllers/dentist.controller';
+
 const router = express.Router();
 
 /**
  * @swagger
  * tags:
  *   name: Dentists
- *   description: The books managing API
+ *   description: Get all dentists
  * /api/dentists:
- *   post:
- *     summary: Read dentist
+ *   get:
+ *     summary: Get all dentists
  *     tags: [Dentists]
  *     responses:
  *       200:
- *         description: The created book.
+ *         description: List of all dentists
  *       500:
  *         description: Some server error
  *
  */
-router.get('/', (_: Request, res: Response) => {
-  res.status(200).send('GET /dentists');
-});
+router.get('/', getDentists);
 
 export default router;
