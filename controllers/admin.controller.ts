@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import prismaClient from "../utils/prismaClient";
 import { FEMALE_GENDER, MALE_GENDER, STAFF_TYPE } from "../constant";
+import { messageResponse } from "../utils/messageResponse";
 
 export const getStaff = async (
   request: Request,
@@ -16,7 +17,7 @@ export const getStaff = async (
         type: STAFF_TYPE,
       },
     });
-    response.status(200).json(listStaff);
+    response.status(200).json(messageResponse(200, listStaff));
   } catch (error) {
     next(error);
   }

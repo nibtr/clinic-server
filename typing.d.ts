@@ -11,3 +11,8 @@ type TStaff = {
   personnelID: number;
   name: string;
 };
+
+type TResponse = {
+  statusCode: number;
+  data: any;
+};
