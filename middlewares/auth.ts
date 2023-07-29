@@ -1,7 +1,7 @@
 import { PrismaClient, Account } from "@prisma/client"
 import { Request, Response, NextFunction } from 'express';
 import jwt, { JwtPayload } from 'jsonwebtoken';
-import config from '../configs';
+import config from '../routes/configs';
 
 
 const prisma = new PrismaClient()

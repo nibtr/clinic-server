@@ -1,6 +1,6 @@
 import express from 'express';
 import { getDentists } from '../../controllers/dentist.controller';
-import authorizeUser from '../middlewares/auth';
+import authorizeUser from '../../middlewares/auth';
 
 const router = express.Router();
 
