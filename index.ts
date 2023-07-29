@@ -4,6 +4,8 @@ import swaggerJsdoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
 import cors from "cors";
 import router from "./routes";
+import bodyParser from "body-parser";
+import { catchError } from "./middlewares/catchError";
 
 dotenv.config();
 
@@ -12,6 +14,7 @@ const port = process.env.PORT || 3000;
 
 // cors
 app.use(cors());
+app.use(bodyParser.json());
 
 // swagger
 const options = {
@@ -43,6 +46,9 @@ app.use("/api", router);
 app.get("/", (req: Request, res: Response) => {
   res.send("Hello, World!");
 });
+
+// error handler
+app.use(catchError);
 
 app.listen(port, () => {
   console.log(`⚡️[server]: Server is running at http://localhost:${port}`);
