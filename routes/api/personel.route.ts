@@ -1,5 +1,5 @@
 import express from 'express';
-import { getDentistById, getDentists, getSessionById } from '../../controllers/dentist.controller';
+import { getPersonelById, getPersonels } from '../../controllers/personel.controller';
 
 const router = express.Router();
 
@@ -19,8 +19,8 @@ const router = express.Router();
  *         description: Some server error
  *
  */
-router.get('api/dentists', getDentists);
-router.get('api/dentist/:id', getDentistById);
-router.get('api/sessions/:id', getSessionById);
+
+// router.get('/personels', getPersonels);
+router.get('/personel/:id', getPersonelById);
 
 export default router;
