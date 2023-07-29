@@ -7,7 +7,7 @@ export const getStaffs = async (req: Request, res: Response, next: NextFunction)
         res.status(200).json(staffs);
     } catch (error) {
         next(error);
-        res.status(500);
+        res.status(500).send('Internal Server Error');;
     }
 }
 
@@ -21,7 +21,7 @@ export const getStaffById = async (req: Request, res: Response, next: NextFuncti
         res.status(200).json(staff);
     } catch (error) {
         next(error);
-        res.status(500);
+        res.status(500).send('Internal Server Error');;
     }
 }
 
@@ -32,7 +32,7 @@ export const getPersonels = async (req: Request, res: Response, next: NextFuncti
         res.status(200).json(personels);
     } catch (error) {
         next(error);
-        res.status(500);
+        res.status(500).send('Internal Server Error');;
     }
 }
 
@@ -46,7 +46,7 @@ export const getPersonelById = async (req: Request, res: Response, next: NextFun
         res.status(200).json(personel);
     } catch (error) {
         next(error);
-        res.status(500);
+        res.status(500).send('Internal Server Error');;
     }
 }
 
@@ -87,7 +87,7 @@ export const getDentists = async (req: Request, res: Response, next: NextFunctio
         res.status(200).json(dentists);
     } catch (error) {
         next(error);
-        res.status(500);
+        res.status(500).send('Internal Server Error');;
     }
 }
 
@@ -130,7 +130,7 @@ export const getDentistById = async (req: Request, res: Response, next: NextFunc
         res.status(200).json(dentist);
     } catch (error) {
         next(error);
-        res.status(500);
+        res.status(500).send('Internal Server Error');;
     }
 }
 
@@ -161,7 +161,7 @@ export const getAssistants = async (req: Request, res: Response, next: NextFunct
         res.status(200).json(assistants);
     } catch (error) {
         next(error);
-        res.status(500);
+        res.status(500).send('Internal Server Error');;
     }
 }
 
@@ -194,7 +194,7 @@ export const getAssistantById = async (req: Request, res: Response, next: NextFu
         res.status(200).json(assistant);
     } catch (error) {
         next(error);
-        res.status(500);
+        res.status(500).send('Internal Server Error');;
     }
 }
 
@@ -239,7 +239,7 @@ export const getPatients = async (req: Request, res: Response, next: NextFunctio
         res.status(200).json(patients);
     } catch (error) {
         next(error);
-        res.status(500);
+        res.status(500).send('Internal Server Error');;
     }
 }
 
@@ -284,7 +284,7 @@ export const getPatientById = async (req: Request, res: Response, next: NextFunc
         res.status(200).json(patient);
     } catch (error) {
         next(error);
-        res.status(500);
+        res.status(500).send('Internal Server Error');;
     }
 }
 
@@ -305,6 +305,6 @@ export const getSessions = async (req: Request, res: Response, next: NextFunctio
         res.status(200).json(sessions);
     } catch (error) {
         next(error);
-        res.status(500);
+        res.status(500).send('Internal Server Error');;
     }
 }

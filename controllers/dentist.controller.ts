@@ -7,7 +7,7 @@ export const getDentists = async (req: Request, res: Response, next: NextFunctio
     res.status(200).json(dentists);
   } catch (error) {
     next(error);
-    res.status(500);
+    res.status(500).send('Internal Server Error');;
   }
 }
 
@@ -33,7 +33,7 @@ export const getDentistById = async (req: Request, res: Response, next: NextFunc
     res.status(200).json(dentist);
   } catch (error) {
     next(error);
-    res.status(500);
+    res.status(500).send('Internal Server Error');;
   }
 }
 
@@ -108,6 +108,6 @@ export const getSessionById = async (req: Request, res: Response, next: NextFunc
     res.status(200).json(sessions);
   } catch (error) {
     next(error);
-    res.status(500);
+    res.status(500).send('Internal Server Error');;
   }
 }
