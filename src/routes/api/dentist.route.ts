@@ -1,5 +1,5 @@
-import express from 'express';
-import { getDentists } from '../../controllers/dentist.controller';
+import express from "express";
+import { getDentists } from "../../controllers/dentist.controller";
 
 const router = express.Router();
 
@@ -19,6 +19,6 @@ const router = express.Router();
  *         description: Some server error
  *
  */
-router.get('/', getDentists);
+router.get("/", getDentists);
 
 export default router;

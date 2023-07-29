@@ -1,7 +1,11 @@
 import { Request, NextFunction, Response } from "express";
 import prismaClient from "../utils/prismaClient";
 
-export const getPersonel = async (req: Request, res: Response, next: NextFunction) => {
+export const getPersonel = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const personel = await prismaClient.personel.findMany();
 
@@ -9,4 +13,4 @@ export const getPersonel = async (req: Request, res: Response, next: NextFunctio
   } catch (error) {
     next(error);
   }
-}
+};

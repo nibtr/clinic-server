@@ -3,9 +3,9 @@ import dotenv from "dotenv";
 import swaggerJsdoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
 import cors from "cors";
-import router from "./routes";
+import router from "./src/routes";
 import bodyParser from "body-parser";
-import { catchError } from "./middlewares/catchError";
+import { catchError } from "./src/middlewares/catchError";
 
 dotenv.config();
 
