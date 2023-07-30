@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken'
 import { comparePassword } from '../utils/passwordUtil'
 import { Request, Response } from 'express';
 import prismaClient from "../utils/prismaClient";
-import config from '../routes/configs';
+import config from '../configs';
 
 
 export const login = async (req: Request, res: Response) => {

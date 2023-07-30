@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import prismaClient from "../utils/prismaClient";
-import { FEMALE_GENDER, MALE_GENDER, STAFF_TYPE } from "../constant";
+import { STAFF_TYPE } from "../constant";
 import { messageResponse } from "../utils/messageResponse";
 
 export const getStaff = async (
@@ -9,15 +9,39 @@ export const getStaff = async (
   next: NextFunction
 ) => {
   try {
-    const { limit, page } = request.query;
-    let listStaff = await prismaClient.personnel.findMany({
-      skip: Number(limit) * Number(page),
-      take: Number(limit),
-      where: {
-        type: STAFF_TYPE,
-      },
-    });
-    response.status(200).json(messageResponse(200, listStaff));
+    let { limit, page } = request.query;
+
+    if (!limit) {
+      return response
+        .status(400)
+        .json(messageResponse(400, "limit is required"));
+    }
+
+    if (!page) {
+      page = "0";
+    }
+
+    const [total, listStaff] = await prismaClient.$transaction([
+      prismaClient.personnel.count({
+        where: {
+          type: STAFF_TYPE,
+        },
+      }),
+      prismaClient.personnel.findMany({
+        skip: Number(limit) * Number(page),
+        take: Number(limit),
+        where: {
+          type: STAFF_TYPE,
+        },
+      }),
+    ]);
+
+    return response.status(200).json(
+      messageResponse(200, {
+        list: listStaff,
+        total,
+      })
+    );
   } catch (error) {
     next(error);
   }

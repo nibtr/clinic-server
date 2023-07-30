@@ -1,6 +1,5 @@
 import express from 'express';
 import { getDentists } from '../../controllers/dentist.controller';
-import authorizeUser from '../../middlewares/auth';
 
 const router = express.Router();
 
@@ -20,6 +19,6 @@ const router = express.Router();
  *         description: Some server error
  *
  */
-router.get('/', authorizeUser('dentist'), getDentists);
+router.get('/', getDentists);
 
-export default router; 
+export default router;
