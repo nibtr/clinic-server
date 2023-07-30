@@ -9,7 +9,17 @@ export const getStaff = async (
   next: NextFunction
 ) => {
   try {
-    const { limit, page } = request.query;
+    let { limit, page } = request.query;
+
+    if (!limit) {
+      return response
+        .status(400)
+        .json(messageResponse(400, "limit is required"));
+    }
+
+    if (!page) {
+      page = "0";
+    }
 
     const [total, listStaff] = await prismaClient.$transaction([
       prismaClient.personnel.count({
@@ -26,9 +36,9 @@ export const getStaff = async (
       }),
     ]);
 
-    response.status(200).json(
+    return response.status(200).json(
       messageResponse(200, {
-        listStaff,
+        list: listStaff,
         total,
       })
     );
