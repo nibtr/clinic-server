@@ -8,7 +8,7 @@ import config from '../configs';
 export const login = async (req: Request, res: Response) => {
     const { username, password } = req.body;
     try {
-        if (!{ username, password }) {
+        if (!username) {
             res.status(400).json({ error: 'Username is required' });
             return;
         }
@@ -36,7 +36,7 @@ export const login = async (req: Request, res: Response) => {
                 return
             }
             const storedPassword = account.password
-            const isMatch = await comparePassword(req.body.password, storedPassword)
+            const isMatch = await comparePassword(password, storedPassword)
             if (!isMatch) {
                 res.status(401).json({
                     error: "Error",
@@ -44,7 +44,7 @@ export const login = async (req: Request, res: Response) => {
                 });
                 return
             }
-            const token = jwt.sign({ id: account.id }, String(config.jwtToken))
+            const token = jwt.sign({ id: account.id, type: account.Personnel.type }, String(config.jwtToken))
             const returnObject = {
                 token,
                 username: account.username,
@@ -56,6 +56,10 @@ export const login = async (req: Request, res: Response) => {
         })
     }
     catch (error) {
-
+        console.log(error)
+        res.status(500).json({
+            error: "Error",
+            message: "Something went wrong with username and password"
+        })
     }
 }
