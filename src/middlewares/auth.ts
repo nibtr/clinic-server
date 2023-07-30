@@ -1,4 +1,4 @@
-import  PrismaClient  from "../utils/prismaClient"
+import PrismaClient from "../utils/prismaClient"
 import { Request, Response, NextFunction } from 'express';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import config from '../configs';
@@ -29,7 +29,10 @@ const authorizeUser = function (...types: any[]) {
             await PrismaClient.$transaction(async (tx) => {
                 const account = await tx.account.findUnique({
                     where: {
-                        id: decoded.id
+                        id: decoded.id,
+                        Personnel: {
+                            type: decoded.type
+                        }
                     },
                     select: {
                         id: true,
@@ -61,7 +64,7 @@ const authorizeUser = function (...types: any[]) {
                 req.account = account;
                 next()
             })
-            
+
         }
         catch (error) {
             console.log(error)

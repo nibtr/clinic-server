@@ -1,15 +1,27 @@
 import jwt from 'jsonwebtoken'
 import { comparePassword } from '../utils/passwordUtil'
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import prismaClient from "../utils/prismaClient";
 import config from '../configs';
+import { messageResponse } from "../utils/messageResponse";
 
 
-export const login = async (req: Request, res: Response) => {
+
+export const login = async (req: Request, res: Response, next: NextFunction) => {
     const { username, password } = req.body;
     try {
         if (!username) {
-            res.status(400).json({ error: 'Username is required' });
+            res.status(400).json(messageResponse(400, {
+                error: "Error",
+                message: "Username is required"
+            }));
+            return;
+        }
+        if (!password) {
+            res.status(400).json(messageResponse(400, {
+                error: "Error",
+                message: "Password is required"
+            }));
             return;
         }
         await prismaClient.$transaction(async (tx) => {
@@ -29,20 +41,21 @@ export const login = async (req: Request, res: Response) => {
                 }
             })
             if (!account) {
-                res.status(401).json({
+                return res.status(400).json(messageResponse(400, {
                     error: "Error",
                     message: "Account not found"
-                });
-                return
+                })
+                );
+
             }
             const storedPassword = account.password
             const isMatch = await comparePassword(password, storedPassword)
             if (!isMatch) {
-                res.status(401).json({
+                return res.status(400).json(messageResponse(400, {
                     error: "Error",
                     message: "Invalid username or password"
-                });
-                return
+                }));
+
             }
             const token = jwt.sign({ id: account.id, type: account.Personnel.type }, String(config.jwtToken))
             const returnObject = {
@@ -61,5 +74,6 @@ export const login = async (req: Request, res: Response) => {
             error: "Error",
             message: "Something went wrong with username and password"
         })
+        next(error)
     }
 }
