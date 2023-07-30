@@ -1,6 +1,5 @@
 import express from "express";
 import * as adminController from "../../controllers/admin.controller";
-import { catchError } from "../../middlewares/catchError";
 
 const router = express.Router();
 
