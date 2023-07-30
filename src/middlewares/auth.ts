@@ -33,31 +33,12 @@ const authorizeUser = function (...types: any[]) {
                         Personnel: {
                             type: decoded.type
                         }
-                    },
-                    select: {
-                        id: true,
-                        // username: true,
-                        // password: true,
-                        // email: true,
-                        // personnelID: true,
-                        Personnel: {
-                            select: {
-                                type: true
-                            }
-                        }
                     }
                 })
                 if (!account) {
                     res.status(401).send('Account not found').json({
                         error: 'Authorize Error',
                         message: 'Account not found',
-                    });
-                    return
-                }
-                if (!types.includes(account.Personnel?.type)) {
-                    res.status(401).send('Permission denied').json({
-                        error: 'Authorize Error',
-                        message: 'Permission denied',
                     });
                     return
                 }
