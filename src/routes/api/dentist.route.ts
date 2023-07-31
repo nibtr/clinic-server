@@ -19,8 +19,8 @@ const router = express.Router();
  *         description: Some server error
  *
  */
-router.get('/dentists', dentistController.getDentists);
-router.get('/dentist/:id', dentistController.getDentistById);
+// router.get('/dentists', dentistController.getDentists);
+// router.get('/dentist/:id', dentistController.getDentistById);
 router.get('/sessions/:id', dentistController.getSessionById);
 
 export default router;

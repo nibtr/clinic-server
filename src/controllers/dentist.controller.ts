@@ -1,5 +1,6 @@
 import { Request, NextFunction, Response } from "express";
 import prismaClient from "../utils/prismaClient";
+import { messageResponse } from "../utils/messageResponse";
 
 export const getDentists = async (
   req: Request,
@@ -43,73 +44,43 @@ export const getDentistById = async (req: Request, res: Response, next: NextFunc
 
 export const getSessionById = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const sessions = await prismaClient.session.findMany({
-      where: {
-        dentistID: parseInt(req.params.id)
-      },
-      select: {
-        id: true,
-        time: true,
-        note: true,
-        status: true,
-        patientID: true,
-        assistantID: true,
-        roomID: true,
-        Patient: {
-          select: {
-            drugContraindication: true,
-            oralHealthStatus: true,
-            allergyStatus: true
-          }
-        },
-        TreatmentSession: {
-          select: {
-            healthNote: true,
-            description: true,
-            categoryID: true,
-            Category: {
-              select: {
-                description: true,
-                code: true,
-                name: true,
-                Procedure: {
-                  select: {
-                    description: true,
-                    code: true,
-                    name: true
-                  }
-                }
-              }
-            },
-            ToothSession: {
-              select: {
-                order: true,
-                Tooth: {
-                  select: {
-                    id: true,
-                    type: true,
-                    name: true
-                  }
-                }
-              }
-            }
 
-          }
-        },
-        ExaminationSession: {
-          select: {
-            id: true
-          }
-        }, ReExaminationSession: {
-          select: {
-            id: true,
-            relatedExaminationID: true
-          }
-        }
+    let { limit, page, today } = req.query;
+    let where : any = {dentistID: parseInt(req.params.id)};
 
+    if (!limit) {
+      return res.status(400).json(messageResponse(400, "limit is required"))
+    }
+
+    if (!page) {
+      page = "0";
+    }
+
+    if (today === "true") {
+      where.time = {
+          gte: new Date(new Date().setHours(0, 0, 0, 0)),
+          lte: new Date(new Date().setHours(23, 59, 59, 999))
       }
-    });
-    res.status(200).json(sessions);
+    }
+
+    const [total, listSession] = await prismaClient.$transaction([
+      prismaClient.session.count({
+        where
+      }),
+      prismaClient.session.findMany({
+        take: Number(limit),
+        skip: Number(page) * Number(limit),
+        where,
+        orderBy: {
+          time: "desc"
+        },
+        
+      })
+    ]);
+    return res.status(200).json(messageResponse(200, {
+      list: listSession,
+      total: total
+    }));
   } catch (error) {
     next(error);
     res.status(500).send('Internal Server Error');;
