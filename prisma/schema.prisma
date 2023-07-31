@@ -8,6 +8,7 @@ datasource db {
 }
 
 model Account {
+<<<<<<< HEAD
   id         Int      @id @default(autoincrement())
   username   String   @unique(map: "UQ__Account__F3DBC5721B80FFFC") @db.Char(10)
   password   String   @db.Char(60)
@@ -27,6 +28,24 @@ model Dentist {
   Personnel Personel   @relation(fields: [id], references: [id], onUpdate: NoAction, map: "FK_Dentist_Personnel")
   Schedule  Schedule[]
   Session   Session[]
+=======
+  id          Int       @id @default(autoincrement())
+  username    String    @unique(map: "UQ__Account__F3DBC5723303EAEF") @db.Char(10)
+  password    String    @db.Char(60)
+  email       String    @unique(map: "UQ__Account__AB6E6164E36E588C") @db.VarChar(50)
+  personnelID Int       @unique(map: "UQ__Account__57D5B0233A98FDF3")
+  Personnel   Personnel @relation(fields: [personnelID], references: [id], map: "FK_Account_Personnel")
+}
+
+model AppointmentRequest {
+  id              Int      @id @default(autoincrement())
+  appointmentTime DateTime
+  requestTime     DateTime
+  note            String?  @db.NVarChar(255)
+  patientName     String   @db.NVarChar(50)
+  patientPhone    String   @db.Char(10)
+  categoryName    String   @db.NVarChar(50)
+>>>>>>> main
 }
 
 model Assistant {
@@ -35,12 +54,57 @@ model Assistant {
   Session Session[]
 }
 
+<<<<<<< HEAD
+=======
+model Category {
+  id               Int                @id @default(autoincrement())
+  code             String             @unique(map: "UQ__Category__357D4CF92CF7800B") @db.Char(3)
+  name             String             @db.NVarChar(50)
+  description      String?            @db.NVarChar(255)
+  Procedure        Procedure[]
+  TreatmentSession TreatmentSession[]
+}
+
+model Day {
+  id       Int        @id @default(autoincrement())
+  day      String     @unique(map: "UQ__Day__D8779320F4E2B7F9") @db.Char(3)
+  Schedule Schedule[]
+}
+
+model Dentist {
+  id        Int        @id
+  Assistant Assistant?
+  Personel  Personnel  @relation(fields: [id], references: [id], onUpdate: NoAction, map: "FK_Dentist_Personel")
+  Schedule  Schedule[]
+  Session   Session[]
+}
+
+model Drug {
+  id           Int            @id @default(autoincrement())
+  code         String         @unique(map: "UQ__Drug__357D4CF9C3C84795") @db.Char(17)
+  name         String         @db.VarChar(50)
+  description  String?        @db.NVarChar(255)
+  price        Int
+  Prescription Prescription[]
+}
+
+model ExaminationSession {
+  id                   Int                    @id
+  Session              Session                @relation(fields: [id], references: [id], onUpdate: NoAction, map: "FK_ExaminationSession_Session")
+  ReExaminationSession ReExaminationSession[]
+}
+
+>>>>>>> main
 model Patient {
   id                   Int             @id
   drugContraindication String?         @db.NVarChar(500)
   oralHealthStatus     String?         @db.NVarChar(500)
   allergyStatus        String?         @db.NVarChar(255)
+<<<<<<< HEAD
   Personnel            Personel        @relation(fields: [id], references: [id], map: "FK_Patient_Personnel")
+=======
+  Personel             Personnel       @relation(fields: [id], references: [id], map: "FK_Patient_Personel")
+>>>>>>> main
   PaymentRecord        PaymentRecord[]
   Session              Session[]
 }
@@ -53,21 +117,75 @@ model PaymentRecord {
   change             Int?             @default(0, map: "DF__PaymentRe__chang__49C3F6B7")
   method             String?          @db.Char(1)
   patientID          Int
+<<<<<<< HEAD
   treatmentSessionID Int              @unique(map: "UQ__PaymentR__8DF2A23FB50F2AC4")
+=======
+  treatmentSessionID Int              @unique(map: "UQ__PaymentR__8DF2A23F906F1D42")
+>>>>>>> main
   Patient            Patient          @relation(fields: [patientID], references: [id], map: "FK_PaymentRecord_Patient")
   TreatmentSession   TreatmentSession @relation(fields: [treatmentSessionID], references: [id], map: "FK_PaymentRecord_TreatmentSession")
 }
 
+<<<<<<< HEAD
+=======
+model Prescription {
+  drugID             Int
+  treatmentSessionID Int
+  note               String?          @db.NVarChar(500)
+  Drug               Drug             @relation(fields: [drugID], references: [id], map: "FK_Prescription_Drug")
+  TreatmentSession   TreatmentSession @relation(fields: [treatmentSessionID], references: [id], map: "FK_Prescription_TreatmentSession")
+
+  @@id([drugID, treatmentSessionID])
+}
+
+model Procedure {
+  id          Int      @id @default(autoincrement())
+  code        String   @unique(map: "UQ__Procedur__357D4CF9970AF48A") @db.Char(3)
+  name        String   @db.NVarChar(50)
+  description String?  @db.NVarChar(500)
+  fee         Int
+  categoryID  Int
+  Category    Category @relation(fields: [categoryID], references: [id], onDelete: Cascade, map: "FK_Procedure_Category")
+}
+
+model ReExaminationSession {
+  id                   Int                @id
+  relatedExaminationID Int
+  ExaminationSession   ExaminationSession @relation(fields: [relatedExaminationID], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_ReExaminationSession_ExaminationSession")
+  Session              Session            @relation(fields: [id], references: [id], onUpdate: NoAction, map: "FK_ReExaminationSession_Session")
+}
+
+model Room {
+  id      Int       @id @default(autoincrement())
+  code    String    @unique(map: "UQ__Room__357D4CF9BF685C7F") @db.Char(6)
+  name    String    @db.VarChar(50)
+  Session Session[]
+}
+
+model Schedule {
+  dayID     Int
+  dentistID Int
+  Day       Day     @relation(fields: [dayID], references: [id], onUpdate: NoAction, map: "FK_Schedule_Day")
+  Dentist   Dentist @relation(fields: [dentistID], references: [id], onUpdate: NoAction, map: "FK_Schedule_Dentist")
+
+  @@id([dayID, dentistID])
+}
+
+>>>>>>> main
 model Session {
   id                   Int                   @id @default(autoincrement())
   time                 DateTime
   note                 String?
-  status               String?               @default("do", map: "DF__Session__status__4CA06362") @db.VarChar(6)
+  status               String?               @default("SCH", map: "DF__Session__status__4CA06362") @db.Char(3)
   patientID            Int
   assistantID          Int?
   dentistID            Int
   roomID               Int
+<<<<<<< HEAD
   type                 String                @db.Char(1)
+=======
+  type                 String                @db.Char(3)
+>>>>>>> main
   ExaminationSession   ExaminationSession?
   ReExaminationSession ReExaminationSession?
   Assistant            Assistant?            @relation(fields: [assistantID], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_Session_Assistant")
@@ -77,6 +195,7 @@ model Session {
   TreatmentSession     TreatmentSession?
 }
 
+<<<<<<< HEAD
 model TreatmentSession {
   id            Int            @id
   healthNote    String?
@@ -135,11 +254,20 @@ model Drug {
   description  String?        @db.NVarChar(255)
   price        Int
   Prescription Prescription[]
+=======
+model Staff {
+  id       Int       @id
+  Personel Personnel @relation(fields: [id], references: [id], map: "FK_Staff_Personel")
+>>>>>>> main
 }
 
 model Tooth {
   id           Int            @id @default(autoincrement())
+<<<<<<< HEAD
   type         String         @unique(map: "UQ__Tooth__E3F85248B59AF378") @db.Char(1)
+=======
+  type         String         @unique(map: "UQ__Tooth__E3F85248BA1EA78C") @db.Char(1)
+>>>>>>> main
   name         String         @db.VarChar(50)
   ToothSession ToothSession[]
 }
@@ -195,6 +323,20 @@ model Personel {
   dob        DateTime? @db.Date
   gender     String?   @db.Char(1)
   phone      String    @unique(map: "UQ__Personel__B43B145F9DF2B316") @db.Char(10)
+  type       String    @db.Char(3)
+  Account    Account?
+  Dentist    Dentist?
+  Patient    Patient?
+  Staff      Staff?
+}
+
+model Personnel {
+  id         Int       @id @default(autoincrement())
+  nationalID String    @unique(map: "UQ__Personne__B5881E88B9F6870B") @db.Char(12)
+  name       String    @db.NVarChar(50)
+  dob        DateTime? @db.Date
+  gender     String?   @db.Char(1)
+  phone      String    @unique(map: "UQ__Personne__B43B145FA99EE667") @db.Char(10)
   type       String    @db.Char(3)
   Account    Account?
   Dentist    Dentist?

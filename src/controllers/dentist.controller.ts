@@ -1,7 +1,11 @@
 import { Request, NextFunction, Response } from "express";
 import prismaClient from "../utils/prismaClient";
 
-export const getDentists = async (req: Request, res: Response, next: NextFunction) => {
+export const getDentists = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const dentists = await prismaClient.dentist.findMany();
     res.status(200).json(dentists);
@@ -19,7 +23,7 @@ export const getDentistById = async (req: Request, res: Response, next: NextFunc
       },
       select: {
         id: true,
-        Personnel: {
+        Personel: {
           select: {
             nationalID: true,
             name: true,
