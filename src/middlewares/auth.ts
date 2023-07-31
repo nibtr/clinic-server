@@ -2,6 +2,7 @@ import PrismaClient from "../utils/prismaClient"
 import { Request, Response, NextFunction } from 'express';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import config from '../configs';
+import { messageResponse } from "../utils/messageResponse";
 
 const jwtToken = String(config.jwtToken);
 
@@ -18,41 +19,29 @@ const authorizeUser = function (...types: any[]) {
     return async (req: CustomRequest, res: Response, next: NextFunction) => {
         try {
             if (!req.headers.authorization) {
-                res.status(400).send('Authorization header is required').json({
-                    error: 'Authorize Error',
-                    message: 'Authorization header is required',
-                });
-                return
+                return res.status(400).json(messageResponse(400, 'Authorization header is required'));
             }
             const token = req.headers.authorization.split(' ')[1]
             const decoded = jwt.verify(token, jwtToken) as JwtPayload
             await PrismaClient.$transaction(async (tx) => {
                 const account = await tx.account.findUnique({
                     where: {
-                        id: decoded.id,
-                        Personnel: {
-                            type: decoded.type
-                        }
+                        id: decoded.id
                     }
                 })
                 if (!account) {
-                    res.status(401).send('Account not found').json({
-                        error: 'Authorize Error',
-                        message: 'Account not found',
-                    });
-                    return
+                    return res.status(401).json(messageResponse(401, 'Account not found'));
+                }
+                if (!types.includes(decoded.type)) {
+                    return res.status(401).json(messageResponse(401, 'Permission denied'));
                 }
                 req.account = account;
                 next()
             })
-
         }
         catch (error) {
             console.log(error)
-            res.status(401).send('Account not found').json({
-                error: 'Authorize Error',
-                message: 'Something went wrong',
-            });
+            return res.status(401).json(messageResponse(401, 'Something went wrong'));
         }
     }
 }

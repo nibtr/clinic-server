@@ -11,18 +11,10 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
     const { username, password } = req.body;
     try {
         if (!username) {
-            res.status(400).json(messageResponse(400, {
-                error: "Error",
-                message: "Username is required"
-            }));
-            return;
+            return res.status(400).json(messageResponse(400, "Username is required"));
         }
         if (!password) {
-            res.status(400).json(messageResponse(400, {
-                error: "Error",
-                message: "Password is required"
-            }));
-            return;
+            return res.status(400).json(messageResponse(400, "Password is required"));
         }
         await prismaClient.$transaction(async (tx) => {
             const account = await tx.account.findUnique({
@@ -41,21 +33,12 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
                 }
             })
             if (!account) {
-                return res.status(400).json(messageResponse(400, {
-                    error: "Error",
-                    message: "Account not found"
-                })
-                );
-
+                return res.status(400).json(messageResponse(400, "Account not found"));
             }
             const storedPassword = account.password
             const isMatch = await comparePassword(password, storedPassword)
             if (!isMatch) {
-                return res.status(400).json(messageResponse(400, {
-                    error: "Error",
-                    message: "Invalid username or password"
-                }));
-
+                return res.status(400).json(messageResponse(400, "Invalid username or password"));
             }
             const token = jwt.sign({ id: account.id, type: account.Personnel.type }, String(config.jwtToken))
             const returnObject = {
@@ -63,17 +46,12 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
                 username: account.username,
                 type: account.Personnel.type
             }
-            res.status(200).json({
-                returnObject
-            })
+            res.status(200).json(messageResponse(200, returnObject))
         })
     }
     catch (error) {
         console.log(error)
-        res.status(500).json({
-            error: "Error",
-            message: "Something went wrong with username and password"
-        })
+        res.status(500).json(messageResponse(500, "Something went wrong with username and password"))
         next(error)
     }
 }
