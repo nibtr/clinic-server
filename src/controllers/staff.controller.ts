@@ -312,52 +312,121 @@ export const getSessions = async (req: Request, res: Response, next: NextFunctio
 
 
 export const getAppointmentRequest = async (
-  request: Request,
-  response: Response,
-  next: NextFunction
+    request: Request,
+    response: Response,
+    next: NextFunction
 ) => {
-  try {
-    let { limit, page, today } = request.query;
-    let where = {};
+    try {
+        let { limit, page, today } = request.query;
+        let where = {};
 
-    if (!limit) {
-      return response
-        .status(400)
-        .json(messageResponse(400, "limit is required"));
+        if (!limit) {
+            return response
+                .status(400)
+                .json(messageResponse(400, "limit is required"));
+        }
+
+        if (!page) {
+            page = "0";
+        }
+
+        if (today === "true") {
+            where = {
+                requestTime: {
+                    gte: new Date(new Date().setHours(0, 0, 0, 0)),
+                    lte: new Date(new Date().setHours(23, 59, 59, 999)),
+                },
+            };
+        }
+
+        const [total, listAppointmentReq] = await prismaClient.$transaction([
+            prismaClient.appointmentRequest.count(),
+            prismaClient.appointmentRequest.findMany({
+                take: Number(limit),
+                skip: Number(page) * Number(limit),
+                orderBy: {
+                    requestTime: "desc",
+                },
+                where,
+            }),
+        ]);
+
+        return response.status(200).json(
+            messageResponse(200, {
+                list: listAppointmentReq,
+                total,
+            })
+        );
+    } catch (error) {
+        next(error);
     }
-
-    if (!page) {
-      page = "0";
-    }
-
-    if (today === "true") {
-      where = {
-        requestTime: {
-          gte: new Date(new Date().setHours(0, 0, 0, 0)),
-          lte: new Date(new Date().setHours(23, 59, 59, 999)),
-        },
-      };
-    }
-
-    const [total, listAppointmentReq] = await prismaClient.$transaction([
-      prismaClient.appointmentRequest.count(),
-      prismaClient.appointmentRequest.findMany({
-        take: Number(limit),
-        skip: Number(page) * Number(limit),
-        orderBy: {
-          requestTime: "desc",
-        },
-        where,
-      }),
-    ]);
-
-    return response.status(200).json(
-      messageResponse(200, {
-        list: listAppointmentReq,
-        total,
-      })
-    );
-  } catch (error) {
-    next(error);
-  }
 };
+
+export const getExaminations = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        let { limit, page, today } = req.query
+        let where: any = {}
+
+        if (!limit) {
+            return res.status(400).json(messageResponse(400, "limit is required"))
+        }
+        if (!page) {
+            page = "0"
+        }
+        if (today === "true") {
+            where.session.time = {
+                gte: new Date(new Date().setHours(0, 0, 0, 0)),
+                lte: new Date(new Date().setHours(23, 59, 59, 999)),
+            }
+        }
+        const [total, listExam] = await prismaClient.$transaction([
+            prismaClient.examinationSession.count(),
+            prismaClient.examinationSession.findMany({
+                take: Number(limit),
+                skip: Number(page) * Number(limit),
+                orderBy: {
+                    Session: {
+                        time: "desc",
+                    }
+                },
+                where,
+                select: {
+                    Session: {
+                        select: {
+                            time: true,
+                            roomID: true,
+                            status: true,
+                            Patient: {
+                                select: {
+                                    Personel: {
+                                        select: {
+                                            name: true
+                                        }
+                                    }
+                                }
+                            },
+                            Dentist: {
+                                select: {
+                                    Personel: {
+                                        select: {
+                                            name: true
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            })
+        ])
+        return res.status(200).json(
+            messageResponse(200, {
+                list: listExam,
+                total: total
+            })
+        )
+    }
+    catch (error) {
+        next(error)
+    }
+}

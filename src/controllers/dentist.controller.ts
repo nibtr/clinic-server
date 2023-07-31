@@ -46,7 +46,7 @@ export const getSessionById = async (req: Request, res: Response, next: NextFunc
   try {
 
     let { limit, page, today } = req.query;
-    let where : any = {dentistID: parseInt(req.params.id)};
+    let where: any = { dentistID: parseInt(req.params.id) };
 
     if (!limit) {
       return res.status(400).json(messageResponse(400, "limit is required"))
@@ -58,8 +58,8 @@ export const getSessionById = async (req: Request, res: Response, next: NextFunc
 
     if (today === "true") {
       where.time = {
-          gte: new Date(new Date().setHours(0, 0, 0, 0)),
-          lte: new Date(new Date().setHours(23, 59, 59, 999))
+        gte: new Date(new Date().setHours(0, 0, 0, 0)),
+        lte: new Date(new Date().setHours(23, 59, 59, 999))
       }
     }
 
@@ -74,7 +74,33 @@ export const getSessionById = async (req: Request, res: Response, next: NextFunc
         orderBy: {
           time: "desc"
         },
-        
+        select: {
+          time: true,
+          status: true,
+          Patient: {
+            select: {
+              Personel: {
+                select: {
+                  name: true
+                }
+              }
+            }
+          },
+          Assistant: {
+            select: {
+              Dentist: {
+                select: {
+                  Personel: {
+                    select: {
+                      name: true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+
       })
     ]);
     return res.status(200).json(messageResponse(200, {
