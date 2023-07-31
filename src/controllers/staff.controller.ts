@@ -394,8 +394,12 @@ export const getExaminations = async (req: Request, res: Response, next: NextFun
                     Session: {
                         select: {
                             time: true,
-                            roomID: true,
                             status: true,
+                            Room: {
+                                select: {
+                                    name: true
+                                }
+                            },
                             Patient: {
                                 select: {
                                     Personel: {
@@ -422,6 +426,79 @@ export const getExaminations = async (req: Request, res: Response, next: NextFun
         return res.status(200).json(
             messageResponse(200, {
                 list: listExam,
+                total: total
+            })
+        )
+    }
+    catch (error) {
+        next(error)
+    }
+}
+
+export const getReExaminations = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        let { limit, page, today } = req.query
+        let where: any = {}
+
+        if (!limit) {
+            return res.status(400).json(messageResponse(400, "limit is required"))
+        }
+        if (!page) {
+            page = "0"
+        }
+        if (today === "true") {
+            where.session.time = {
+                gte: new Date(new Date().setHours(0, 0, 0, 0)),
+                lte: new Date(new Date().setHours(23, 59, 59, 999)),
+            }
+        }
+        const [total, listReExam] = await prismaClient.$transaction([
+            prismaClient.reExaminationSession.count(),
+            prismaClient.reExaminationSession.findMany({
+                take: Number(limit),
+                skip: Number(page) * Number(limit),
+                orderBy: {
+                    Session: {
+                        time: "desc",
+                    }
+                },
+                where,
+                select: {
+                    Session: {
+                        select: {
+                            time: true,
+                            status: true,
+                            Room: {
+                                select: {
+                                    name: true
+                                }
+                            },
+                            Patient: {
+                                select: {
+                                    Personel: {
+                                        select: {
+                                            name: true
+                                        }
+                                    }
+                                }
+                            },
+                            Dentist: {
+                                select: {
+                                    Personel: {
+                                        select: {
+                                            name: true
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            })
+        ])
+        return res.status(200).json(
+            messageResponse(200, {
+                list: listReExam,
                 total: total
             })
         )
