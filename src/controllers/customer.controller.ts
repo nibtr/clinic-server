@@ -21,7 +21,7 @@ export const makeAppointment = async (
             return;
         }
 
-        if (phone.length !== 10) {
+        if (phone.length !== 10 || !phone.startsWith("0")) {
             response.status(400).json({ message: "Phone number is invalid" });
             return;
         }
