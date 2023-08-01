@@ -8,10 +8,11 @@ export const makeAppointment = async (
     next: NextFunction
 ) => {
     try {
-        const { name, phone, appointmentTime, requestTime, note } = request.body;
+        let { name, phone, appointmentTime, requestTime, note, category } = request.body;
+
         const duplicateApm = await prismaClient.appointmentRequest.findFirst({
             where: {
-                phone: phone,
+                patientPhone: phone,
                 appointmentTime: appointmentTime,
             }
         });
@@ -29,11 +30,12 @@ export const makeAppointment = async (
         const appointment = await prismaClient.$transaction([
             prismaClient.appointmentRequest.create({
                 data: {
-                    name: name,
-                    phone: phone,
+                    patientName: name,
+                    patientPhone: phone,
                     appointmentTime: appointmentTime,
                     requestTime: requestTime,
                     note: note,
+                    categoryName: category,
                 }
 
             }),
