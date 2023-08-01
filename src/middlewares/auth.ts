@@ -30,7 +30,7 @@ const authorizeUser = function (...types: any[]) {
                     }
                 })
                 if (!account) {
-                    return res.status(401).json(messageResponse(401, 'Account not found'));
+                    return res.status(404).json(messageResponse(404, 'Account not found'));
                 }
                 if (!types.includes(decoded.type)) {
                     return res.status(401).json(messageResponse(401, 'Permission denied'));
@@ -42,6 +42,7 @@ const authorizeUser = function (...types: any[]) {
         catch (error) {
             console.log(error)
             return res.status(401).json(messageResponse(401, 'Something went wrong'));
+            next()
         }
     }
 }
