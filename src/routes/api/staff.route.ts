@@ -9,6 +9,7 @@ router.get("/dentists", staffController.getDentists);
 router.get("/rooms", staffController.getRooms);
 router.get("/dentist-for-patient", staffController.findDentistForOldPatient);
 router.post("/examination", staffController.postExamination);
+router.get("/examinations", staffController.getExaminations);
 
 export default router;
 1;

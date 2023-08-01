@@ -8,6 +8,7 @@ import {
   sessionType,
 } from "../constant";
 import {
+  getExaminationFunction,
   getPersonnelFollowingType,
   getRoomsFunction,
 } from "./common.controller";
@@ -302,3 +303,5 @@ export const postExamination = async (
     next(error);
   }
 };
+
+export const getExaminations = getExaminationFunction();
