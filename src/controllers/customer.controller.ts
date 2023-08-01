@@ -39,8 +39,8 @@ export const makeAppointment = async (
             }),
         ]);
 
-        return response.status(200).json(
-            messageResponse(200, appointment)
+        return response.status(201).json(
+            messageResponse(201, appointment)
         );
 
     } catch (error) {
