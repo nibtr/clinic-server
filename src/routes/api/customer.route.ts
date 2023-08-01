@@ -3,6 +3,7 @@ import * as customerController from "../../controllers/customer.controller";
 
 const router = express.Router();
 
-router.post("/make-appointment", customerController.makeAppointment);
+router.post("/appointment", customerController.makeAppointment);
+router.get("/categories", customerController.getCategories);
 
 export default router;

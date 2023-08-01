@@ -2,6 +2,24 @@ import { NextFunction, Request, Response } from "express";
 import prismaClient from "../utils/prismaClient";
 import { messageResponse } from "../utils/messageResponse";
 
+// get all categories
+export const getCategories = async (
+    request: Request,
+    response: Response,
+    next: NextFunction
+) => {
+    
+    try {
+        const categories = await prismaClient.category.findMany();
+        return response.status(200).json(
+            messageResponse(200, categories)
+        );
+    }
+    catch (error) {
+        next(error);
+    }
+}
+
 export const makeAppointment = async (
     request: Request,
     response: Response,
