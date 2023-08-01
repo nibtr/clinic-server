@@ -41,8 +41,8 @@ const authorizeUser = function (...types: any[]) {
         }
         catch (error) {
             console.log(error)
-            return res.status(401).json(messageResponse(401, 'Something went wrong'));
-            next()
+            res.status(401).json(messageResponse(401, 'Something went wrong'));
+            next(error)
         }
     }
 }
