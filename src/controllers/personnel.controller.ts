@@ -5,7 +5,7 @@ import { messageResponse } from "../utils/messageResponse";
 
 export const getPersonnels = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        let { limit, page, today } = req.query
+        let { limit, page } = req.query
         
 
         if (!limit) {

@@ -1,11 +1,44 @@
 import { Request, NextFunction, Response } from "express";
 import prismaClient from "../utils/prismaClient";
 import { messageResponse } from "../utils/messageResponse";
+// import { PrismaClient } from "@prisma/client";
 
 export const getStaffs = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const staffs = await prismaClient.staff.findMany();
-        res.status(200).json(staffs);
+        let { limit, page } = req.query
+        if (!limit) {
+            return res.status(400).json(messageResponse(400, "limit is required"))
+        }
+        if (!page) {
+            page = "0"
+        }
+        const [total, listStaff] = await prismaClient.$transaction([
+            prismaClient.staff.count(),
+            prismaClient.staff.findMany({
+                take: Number(limit),
+                skip: Number(page) * Number(limit),
+                orderBy: {
+                    id: "asc"
+                },
+                select: {
+                    id: true,
+                    Personel: {
+                        select: {
+                            name: true,
+                            dob: true,
+                            gender: true,
+                            phone: true,
+                            nationalID: true
+                        }
+                    }
+                }
+            })
+
+        ])
+        res.status(200).json(messageResponse(200, {
+            list: listStaff,
+            total: total
+        }));
     } catch (error) {
         next(error);
         res.status(500).send('Internal Server Error');;
@@ -14,12 +47,26 @@ export const getStaffs = async (req: Request, res: Response, next: NextFunction)
 
 export const getStaffById = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const staff = await prismaClient.staff.findUnique({
-            where: {
-                id: parseInt(req.params.id)
-            }
-        });
-        res.status(200).json(staff);
+        const staff = await prismaClient.$transaction([
+            prismaClient.staff.findUnique({
+                where: {
+                    id: parseInt(req.params.id)
+                },
+                select: {
+                    id: true,
+                    Personel: {
+                        select: {
+                            name: true,
+                            dob: true,
+                            gender: true,
+                            phone: true,
+                            nationalID: true
+                        }
+                    }
+                }
+            })
+        ])
+        res.status(200).json(messageResponse(200, staff));
     } catch (error) {
         next(error);
         res.status(500).send('Internal Server Error');;
@@ -28,9 +75,40 @@ export const getStaffById = async (req: Request, res: Response, next: NextFuncti
 
 export const getPersonels = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const personels = await prismaClient.personnel.findMany();
+        let { limit, page } = req.query
 
-        res.status(200).json(personels);
+
+        if (!limit) {
+            return res.status(400).json(messageResponse(400, "limit is required"))
+        }
+        if (!page) {
+            page = "0"
+        }
+
+        const [total, listPersonnel] = await prismaClient.$transaction([
+            prismaClient.personnel.count(),
+            prismaClient.personnel.findMany({
+                take: Number(limit),
+                skip: Number(page) * Number(limit),
+                orderBy: {
+                    id: "asc"
+                },
+                select: {
+                    id: true,
+                    nationalID: true,
+                    name: true,
+                    dob: true,
+                    gender: true,
+                    phone: true
+                }
+            })
+        ]);
+
+
+        res.status(200).json(messageResponse(200, {
+            list: listPersonnel,
+            total: total
+        }));
     } catch (error) {
         next(error);
         res.status(500).send('Internal Server Error');;
@@ -39,12 +117,22 @@ export const getPersonels = async (req: Request, res: Response, next: NextFuncti
 
 export const getPersonelById = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const personel = await prismaClient.personnel.findUnique({
-            where: {
-                id: parseInt(req.params.id)
-            }
-        });
-        res.status(200).json(personel);
+        const personnel = await prismaClient.$transaction([
+            prismaClient.personnel.findUnique({
+                where: {
+                    id: parseInt(req.params.id)
+                },
+                select: {
+                    id: true,
+                    nationalID: true,
+                    name: true,
+                    dob: true,
+                    gender: true,
+                    phone: true
+                }
+            })
+        ])
+        res.status(200).json(messageResponse(200, personnel));
     } catch (error) {
         next(error);
         res.status(500).send('Internal Server Error');;
@@ -53,39 +141,40 @@ export const getPersonelById = async (req: Request, res: Response, next: NextFun
 
 export const getDentists = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const dentists = await prismaClient.dentist.findMany({
-            select: {
-                id: true,
-                Personel: {
-                    select: {
-                        id: true,
-                        nationalID: true,
-                        name: true,
-                        dob: true,
-                        gender: true,
-                        phone: true
-                    }
+        let { limit, page } = req.query
+
+        if (!limit) {
+            return res.status(400).json(messageResponse(400, "limit is required"))
+        }
+        if (!page) {
+            page = "0"
+        }
+        const [total, listDentist] = await prismaClient.$transaction([
+            prismaClient.dentist.count(),
+            prismaClient.dentist.findMany({
+                take: Number(limit),
+                skip: Number(page) * Number(limit),
+                orderBy: {
+                    id: "asc"
                 },
-                Schedule: {
-                    select: {
-                        dayID: true
-                    }
-                },
-                Session: {
-                    select: {
-                        id: true,
-                        time: true,
-                        note: true,
-                        status: true,
-                        patientID: true,
-                        assistantID: true,
-                        roomID: true
+                select: {
+                    id: true,
+                    Personel: {
+                        select: {
+                            nationalID: true,
+                            name: true,
+                            dob: true,
+                            gender: true,
+                            phone: true
+                        }
                     }
                 }
-            }
-        }
-        );
-        res.status(200).json(dentists);
+            })
+        ]);
+        res.status(200).json(messageResponse(200, {
+            list: listDentist,
+            total: total
+        }));
     } catch (error) {
         next(error);
         res.status(500).send('Internal Server Error');;
@@ -94,41 +183,27 @@ export const getDentists = async (req: Request, res: Response, next: NextFunctio
 
 export const getDentistById = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const dentist = await prismaClient.dentist.findUnique({
-            where: {
-                id: parseInt(req.params.id)
-            },
-            select: {
-                id: true,
-                Personel: {
-                    select: {
-                        id: true,
-                        nationalID: true,
-                        name: true,
-                        dob: true,
-                        gender: true,
-                        phone: true
-                    }
+        const dentist = await prismaClient.$transaction([
+            prismaClient.dentist.findUnique({
+                where: {
+                    id: parseInt(req.params.id)
                 },
-                Schedule: {
-                    select: {
-                        dayID: true
-                    }
-                },
-                Session: {
-                    select: {
-                        id: true,
-                        time: true,
-                        note: true,
-                        status: true,
-                        patientID: true,
-                        assistantID: true,
-                        roomID: true
-                    }
+                select: {
+                    id: true,
+                    Personel: {
+                        select: {
+                            id: true,
+                            nationalID: true,
+                            name: true,
+                            dob: true,
+                            gender: true,
+                            phone: true
+                        }
+                    },
                 }
-            }
-        });
-        res.status(200).json(dentist);
+            })
+        ])
+        res.status(200).json(messageResponse(200, dentist));
     } catch (error) {
         next(error);
         res.status(500).send('Internal Server Error');;
@@ -138,28 +213,44 @@ export const getDentistById = async (req: Request, res: Response, next: NextFunc
 
 export const getAssistants = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const assistants = await prismaClient.assistant.findMany({
-            select: {
-                id: true,
-                Dentist: {
-                    select: {
-                        id: true
-                    }
+        let { limit, page } = req.query
+
+        if (!limit) {
+            return res.status(400).json(messageResponse(400, "limit is required"))
+        }
+        if (!page) {
+            page = "0"
+        }
+        const [total, listAssistant] = await prismaClient.$transaction([
+            prismaClient.assistant.count(),
+            prismaClient.assistant.findMany({
+                take: Number(limit),
+                skip: Number(page) * Number(limit),
+                orderBy: {
+                    id: "asc"
                 },
-                Session: {
-                    select: {
-                        id: true,
-                        time: true,
-                        note: true,
-                        status: true,
-                        patientID: true,
-                        dentistID: true,
-                        roomID: true
+                select: {
+                    id: true,
+                    Dentist: {
+                        select: {
+                            Personel: {
+                                select: {
+                                    nationalID: true,
+                                    name: true,
+                                    dob: true,
+                                    gender: true,
+                                    phone: true
+                                }
+                            }
+                        }
                     }
                 }
-            }
-        });
-        res.status(200).json(assistants);
+            })
+        ]);
+        res.status(200).json(messageResponse(200, {
+            list: listAssistant,
+            total: total
+        }));
     } catch (error) {
         next(error);
         res.status(500).send('Internal Server Error');;
@@ -168,31 +259,31 @@ export const getAssistants = async (req: Request, res: Response, next: NextFunct
 
 export const getAssistantById = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const assistant = await prismaClient.assistant.findUnique({
-            where: {
-                id: parseInt(req.params.id)
-            },
-            select: {
-                id: true,
-                Dentist: {
-                    select: {
-                        id: true
-                    }
+        const assistant = await prismaClient.$transaction([
+            prismaClient.assistant.findUnique({
+                where: {
+                    id: parseInt(req.params.id)
                 },
-                Session: {
-                    select: {
-                        id: true,
-                        time: true,
-                        note: true,
-                        status: true,
-                        patientID: true,
-                        dentistID: true,
-                        roomID: true
+                select: {
+                    id: true,
+                    Dentist: {
+                        select: {
+                            Personel: {
+                                select: {
+                                    nationalID: true,
+                                    name: true,
+                                    dob: true,
+                                    gender: true,
+                                    phone: true
+                                }
+                            }
+                        }
                     }
                 }
-            }
-        });
-        res.status(200).json(assistant);
+            })
+        ])
+        res.status(200).json(messageResponse(200, assistant
+        ));
     } catch (error) {
         next(error);
         res.status(500).send('Internal Server Error');;
@@ -201,43 +292,40 @@ export const getAssistantById = async (req: Request, res: Response, next: NextFu
 
 export const getPatients = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const patients = await prismaClient.patient.findUnique({
-            where: {
-                id: parseInt(req.params.id)
-            },
-            select: {
-                id: true,
-                Personel: {
-                    select: {
-                        id: true,
-                        nationalID: true,
-                        name: true,
-                        dob: true,
-                        gender: true,
-                        phone: true
-                    }
+        let { limit, page } = req.query
+
+        if (!limit) {
+            return res.status(400).json(messageResponse(400, "limit is required"))
+        }
+        if (!page) {
+            page = "0"
+        }
+        const [total, listPatient] = await prismaClient.$transaction([
+            prismaClient.patient.count(),
+            prismaClient.patient.findMany({
+                take: Number(limit),
+                skip: Number(page) * Number(limit),
+                orderBy: {
+                    id: "asc"
                 },
-                PaymentRecord: {
-                    select: {
-                        id: true,
-                        date: true,
-                        total: true,
-                        method: true
-                    }
-                },
-                Session: {
-                    select: {
-                        id: true,
-                        time: true,
-                        status: true,
-                        dentistID: true,
-                        assistantID: true,
-                        roomID: true
+                select: {
+                    id: true,
+                    Personel: {
+                        select: {
+                            nationalID: true,
+                            name: true,
+                            dob: true,
+                            gender: true,
+                            phone: true
+                        }
                     }
                 }
-            }
-        });
-        res.status(200).json(patients);
+            })
+        ]);
+        res.status(200).json(messageResponse(200, {
+            list: listPatient,
+            total: total
+        }));
     } catch (error) {
         next(error);
         res.status(500).send('Internal Server Error');;
@@ -246,43 +334,27 @@ export const getPatients = async (req: Request, res: Response, next: NextFunctio
 
 export const getPatientById = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const patient = await prismaClient.patient.findUnique({
-            where: {
-                id: parseInt(req.params.id)
-            },
-            select: {
-                id: true,
-                Personel: {
-                    select: {
-                        id: true,
-                        nationalID: true,
-                        name: true,
-                        dob: true,
-                        gender: true,
-                        phone: true
-                    }
+        const patient = await prismaClient.$transaction([
+            prismaClient.patient.findUnique({
+                where: {
+                    id: parseInt(req.params.id)
                 },
-                PaymentRecord: {
-                    select: {
-                        id: true,
-                        date: true,
-                        total: true,
-                        method: true
-                    }
-                },
-                Session: {
-                    select: {
-                        id: true,
-                        time: true,
-                        status: true,
-                        dentistID: true,
-                        assistantID: true,
-                        roomID: true
-                    }
+                select: {
+                    id: true,
+                    Personel: {
+                        select: {
+                            id: true,
+                            nationalID: true,
+                            name: true,
+                            dob: true,
+                            gender: true,
+                            phone: true
+                        }
+                    },
                 }
-            }
-        });
-        res.status(200).json(patient);
+            })
+        ])
+        res.status(200).json(messageResponse(200, patient));
     } catch (error) {
         next(error);
         res.status(500).send('Internal Server Error');;
@@ -292,18 +364,48 @@ export const getPatientById = async (req: Request, res: Response, next: NextFunc
 
 export const getSessions = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const sessions = await prismaClient.session.findMany({
-            select: {
-                id: true,
-                time: true,
-                note: true,
-                status: true,
-                dentistID: true,
-                assistantID: true,
-                roomID: true
-            }
-        });
-        res.status(200).json(sessions);
+        let { limit, page, today } = req.query;
+        let where = {};
+        if (!limit) {
+            return res.status(400).json(messageResponse(400, "limit is required"));
+        }
+        if (!page) {
+            page = "0";
+        }
+        if (today === "true") {
+            where = {
+                time: {
+                    gte: new Date(new Date().setHours(0, 0, 0, 0)),
+                    lte: new Date(new Date().setHours(23, 59, 59, 999)),
+                },
+            };
+        }
+
+        const [total, listSession] = await prismaClient.$transaction([
+            prismaClient.session.count(),
+            prismaClient.session.findMany({
+                take: Number(limit),
+                skip: Number(page) * Number(limit),
+                where,
+                orderBy: {
+                    time: 'desc'
+                },
+                select: {
+                    id: true,
+                    time: true,
+                    note: true,
+                    status: true,
+                    dentistID: true,
+                    assistantID: true,
+                    roomID: true
+                }
+            })
+        ])
+
+        res.status(200).json(messageResponse(200, {
+            list: listSession,
+            total: total
+        }));
     } catch (error) {
         next(error);
         res.status(500).send('Internal Server Error');;
@@ -505,5 +607,49 @@ export const getReExaminations = async (req: Request, res: Response, next: NextF
     }
     catch (error) {
         next(error)
+    }
+}
+
+export const getRooms = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        let { limit, page } = req.query;
+        let where = {};
+        if (!limit) {
+            return res.status(400).json(messageResponse(400, "limit is required"));
+        }
+        if (!page) {
+            page = "0";
+        }
+
+
+        const [total, listRoom] = await prismaClient.$transaction([
+            prismaClient.room.count(),
+            prismaClient.room.findMany({
+                take: Number(limit),
+                skip: Number(page) * Number(limit),
+                where,
+                orderBy: {
+                    id: 'asc'
+                },
+                select: {
+                    id: true,
+                    name: true,
+                    code: true,
+                    Session: {
+                        select: {
+                            patientID: true
+                        }
+                    }
+                }
+            })
+        ])
+
+        res.status(200).json(messageResponse(200, {
+            list: listRoom,
+            total: total
+        }));
+    } catch (error) {
+        next(error);
+        res.status(500).send('Internal Server Error');;
     }
 }
