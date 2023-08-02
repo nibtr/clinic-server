@@ -1,5 +1,5 @@
 import express from 'express';
-import { getPersonelById, getPersonels } from '../../controllers/personel.controller';
+import * as personelController from '../../controllers/personnel.controller';
 
 const router = express.Router();
 
@@ -20,7 +20,7 @@ const router = express.Router();
  *
  */
 
-// router.get('/personels', getPersonels);
-router.get('/personel/:id', getPersonelById);
+
+router.get('/personels', personelController.getPersonnels);
 
 export default router;

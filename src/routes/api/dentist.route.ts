@@ -20,7 +20,7 @@ const router = express.Router();
  *
  */
 // router.get('/dentists', dentistController.getDentists);
-// router.get('/dentist/:id', dentistController.getDentistById);
+// router.get('/dentists/:id', dentistController.getDentistById);
 router.get('/sessions/:id', dentistController.getSessionById);
 
 export default router;

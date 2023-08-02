@@ -8,6 +8,7 @@ export const getDentists = async (
   next: NextFunction
 ) => {
   try {
+    await prismaClient.$transaction([])
     const dentists = await prismaClient.dentist.findMany();
     res.status(200).json(dentists);
   } catch (error) {
@@ -18,24 +19,27 @@ export const getDentists = async (
 
 export const getDentistById = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const dentist = await prismaClient.dentist.findUnique({
-      where: {
-        id: parseInt(req.params.id)
-      },
-      select: {
-        id: true,
-        Personel: {
-          select: {
-            nationalID: true,
-            name: true,
-            dob: true,
-            gender: true,
-            phone: true
+    
+    await prismaClient.$transaction(async (tx) => {
+      const dentist = await tx.dentist.findUnique({
+        where: {
+          id: parseInt(req.params.id)
+        },
+        select: {
+          id: true,
+          Personel: {
+            select: {
+              nationalID: true,
+              name: true,
+              dob: true,
+              gender: true,
+              phone: true
+            }
           }
         }
-      }
-    });
-    res.status(200).json(dentist);
+      });
+      res.status(200).json(dentist);
+    })
   } catch (error) {
     next(error);
     res.status(500).send('Internal Server Error');;

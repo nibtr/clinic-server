@@ -4,8 +4,8 @@ import * as staffController from "../../controllers/staff.controller";
 const router = express.Router();
 
 router.get("/appointment-requests", staffController.getAppointmentRequest);
-router.get("/Examinations", staffController.getExaminations);
-router.get("/ReExaminations", staffController.getReExaminations);
+router.get("/examinations", staffController.getExaminations);
+router.get("/re-examinations", staffController.getReExaminations);
 
 
 // router.get('/personels', staffController.getPersonels);
