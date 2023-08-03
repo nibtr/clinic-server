@@ -52,6 +52,5 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
     catch (error) {
         console.log(error)
         res.status(500).json(messageResponse(500, "Something went wrong with username and password"))
-        next(error)
     }
 }
