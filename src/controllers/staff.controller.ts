@@ -1,36 +1,40 @@
 import { Request, NextFunction, Response } from "express";
 import prismaClient from "../utils/prismaClient";
 import { messageResponse } from "../utils/messageResponse";
-// import { PrismaClient } from "@prisma/client";
+import { STAFF_TYPE, DENTIST_TYPE, PATIENT_TYPE } from "../constant";
+
 
 export const getStaffs = async (req: Request, res: Response, next: NextFunction) => {
     try {
         let { limit, page } = req.query
+        let where: any = { type: STAFF_TYPE };
+
         if (!limit) {
             return res.status(400).json(messageResponse(400, "limit is required"))
         }
         if (!page) {
             page = "0"
         }
+
         const [total, listStaff] = await prismaClient.$transaction([
-            prismaClient.staff.count(),
-            prismaClient.staff.findMany({
+            prismaClient.personnel.count({
+                where
+            }),
+            prismaClient.personnel.findMany({
                 take: Number(limit),
                 skip: Number(page) * Number(limit),
                 orderBy: {
                     id: "asc"
                 },
+                where,
                 select: {
                     id: true,
-                    Personel: {
-                        select: {
-                            name: true,
-                            dob: true,
-                            gender: true,
-                            phone: true,
-                            nationalID: true
-                        }
-                    }
+                    name: true,
+                    dob: true,
+                    gender: true,
+                    phone: true,
+                    nationalID: true,
+                    age: true
                 }
             })
 
@@ -48,21 +52,19 @@ export const getStaffs = async (req: Request, res: Response, next: NextFunction)
 export const getStaffById = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const staff = await prismaClient.$transaction([
-            prismaClient.staff.findUnique({
+            prismaClient.personnel.findUnique({
                 where: {
-                    id: parseInt(req.params.id)
+                    id: parseInt(req.params.id),
+                    type: STAFF_TYPE
                 },
                 select: {
                     id: true,
-                    Personel: {
-                        select: {
-                            name: true,
-                            dob: true,
-                            gender: true,
-                            phone: true,
-                            nationalID: true
-                        }
-                    }
+                    name: true,
+                    dob: true,
+                    gender: true,
+                    phone: true,
+                    nationalID: true,
+                    age: true,
                 }
             })
         ])
@@ -99,7 +101,8 @@ export const getPersonels = async (req: Request, res: Response, next: NextFuncti
                     name: true,
                     dob: true,
                     gender: true,
-                    phone: true
+                    phone: true,
+                    age: true
                 }
             })
         ]);
@@ -128,7 +131,8 @@ export const getPersonelById = async (req: Request, res: Response, next: NextFun
                     name: true,
                     dob: true,
                     gender: true,
-                    phone: true
+                    phone: true,
+                    age: true
                 }
             })
         ])
@@ -142,7 +146,7 @@ export const getPersonelById = async (req: Request, res: Response, next: NextFun
 export const getDentists = async (req: Request, res: Response, next: NextFunction) => {
     try {
         let { limit, page } = req.query
-
+        let where: any = { type: DENTIST_TYPE };
         if (!limit) {
             return res.status(400).json(messageResponse(400, "limit is required"))
         }
@@ -150,24 +154,24 @@ export const getDentists = async (req: Request, res: Response, next: NextFunctio
             page = "0"
         }
         const [total, listDentist] = await prismaClient.$transaction([
-            prismaClient.dentist.count(),
-            prismaClient.dentist.findMany({
+            prismaClient.personnel.count({
+                where
+            }),
+            prismaClient.personnel.findMany({
                 take: Number(limit),
                 skip: Number(page) * Number(limit),
                 orderBy: {
                     id: "asc"
                 },
+                where,
                 select: {
                     id: true,
-                    Personel: {
-                        select: {
-                            nationalID: true,
-                            name: true,
-                            dob: true,
-                            gender: true,
-                            phone: true
-                        }
-                    }
+                    nationalID: true,
+                    name: true,
+                    dob: true,
+                    gender: true,
+                    phone: true,
+                    age: true
                 }
             })
         ]);
@@ -184,22 +188,19 @@ export const getDentists = async (req: Request, res: Response, next: NextFunctio
 export const getDentistById = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const dentist = await prismaClient.$transaction([
-            prismaClient.dentist.findUnique({
+            prismaClient.personnel.findUnique({
                 where: {
-                    id: parseInt(req.params.id)
+                    id: parseInt(req.params.id),
+                    type: DENTIST_TYPE
                 },
                 select: {
                     id: true,
-                    Personel: {
-                        select: {
-                            id: true,
-                            nationalID: true,
-                            name: true,
-                            dob: true,
-                            gender: true,
-                            phone: true
-                        }
-                    },
+                    nationalID: true,
+                    name: true,
+                    dob: true,
+                    gender: true,
+                    phone: true,
+                    age: true,
                 }
             })
         ])
@@ -214,7 +215,7 @@ export const getDentistById = async (req: Request, res: Response, next: NextFunc
 export const getAssistants = async (req: Request, res: Response, next: NextFunction) => {
     try {
         let { limit, page } = req.query
-
+        let where: any = { type: DENTIST_TYPE }
         if (!limit) {
             return res.status(400).json(messageResponse(400, "limit is required"))
         }
@@ -222,28 +223,22 @@ export const getAssistants = async (req: Request, res: Response, next: NextFunct
             page = "0"
         }
         const [total, listAssistant] = await prismaClient.$transaction([
-            prismaClient.assistant.count(),
-            prismaClient.assistant.findMany({
+            prismaClient.personnel.count({ where }),
+            prismaClient.personnel.findMany({
                 take: Number(limit),
                 skip: Number(page) * Number(limit),
                 orderBy: {
                     id: "asc"
                 },
+                where,
                 select: {
                     id: true,
-                    Dentist: {
-                        select: {
-                            Personel: {
-                                select: {
-                                    nationalID: true,
-                                    name: true,
-                                    dob: true,
-                                    gender: true,
-                                    phone: true
-                                }
-                            }
-                        }
-                    }
+                    nationalID: true,
+                    name: true,
+                    dob: true,
+                    gender: true,
+                    phone: true,
+                    age: true
                 }
             })
         ]);
@@ -260,25 +255,19 @@ export const getAssistants = async (req: Request, res: Response, next: NextFunct
 export const getAssistantById = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const assistant = await prismaClient.$transaction([
-            prismaClient.assistant.findUnique({
+            prismaClient.personnel.findUnique({
                 where: {
-                    id: parseInt(req.params.id)
+                    id: parseInt(req.params.id),
+                    type: DENTIST_TYPE
                 },
                 select: {
                     id: true,
-                    Dentist: {
-                        select: {
-                            Personel: {
-                                select: {
-                                    nationalID: true,
-                                    name: true,
-                                    dob: true,
-                                    gender: true,
-                                    phone: true
-                                }
-                            }
-                        }
-                    }
+                    nationalID: true,
+                    name: true,
+                    dob: true,
+                    gender: true,
+                    phone: true,
+                    age: true
                 }
             })
         ])
@@ -310,15 +299,13 @@ export const getPatients = async (req: Request, res: Response, next: NextFunctio
                 },
                 select: {
                     id: true,
-                    Personel: {
-                        select: {
-                            nationalID: true,
-                            name: true,
-                            dob: true,
-                            gender: true,
-                            phone: true
-                        }
-                    }
+                    nationalID: true,
+                    name: true,
+                    dob: true,
+                    gender: true,
+                    phone: true
+                    drugContraindication: true,
+                    allergyStatus: true
                 }
             })
         ]);
@@ -341,16 +328,14 @@ export const getPatientById = async (req: Request, res: Response, next: NextFunc
                 },
                 select: {
                     id: true,
-                    Personel: {
-                        select: {
-                            id: true,
-                            nationalID: true,
-                            name: true,
-                            dob: true,
-                            gender: true,
-                            phone: true
-                        }
-                    },
+                    id: true,
+                    nationalID: true,
+                    name: true,
+                    dob: true,
+                    gender: true,
+                    phone: true
+                    drugContraindication: true,
+                    allergyStatus: true
                 }
             })
         ])
@@ -374,16 +359,18 @@ export const getSessions = async (req: Request, res: Response, next: NextFunctio
         }
         if (today === "true") {
             where = {
-                time: {
-                    gte: new Date(new Date().setHours(0, 0, 0, 0)),
-                    lte: new Date(new Date().setHours(23, 59, 59, 999)),
-                },
+                session: {
+                    time: {
+                        gte: new Date(new Date().setHours(0, 0, 0, 0)),
+                        lte: new Date(new Date().setHours(23, 59, 59, 999)),
+                    }
+                }
             };
         }
 
         const [total, listSession] = await prismaClient.$transaction([
-            prismaClient.session.count(),
-            prismaClient.session.findMany({
+            prismaClient.personnelsession.count({ where }),
+            prismaClient.personnelsession.findMany({
                 take: Number(limit),
                 skip: Number(page) * Number(limit),
                 where,
@@ -392,12 +379,17 @@ export const getSessions = async (req: Request, res: Response, next: NextFunctio
                 },
                 select: {
                     id: true,
-                    time: true,
-                    note: true,
-                    status: true,
                     dentistID: true,
                     assistantID: true,
-                    roomID: true
+                    sessionID: true,
+                    Session:{
+                        time: true,
+                        status: true,
+                        note: true,
+                        patientID: true,
+                        roomID: true,
+                        type: true
+                    }
                 }
             })
         ])
