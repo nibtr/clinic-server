@@ -83,6 +83,7 @@ export const getSessionById = async (req: Request, res: Response, next: NextFunc
             select: {
               Personel: {
                 select: {
+                  id: true,
                   name: true
                 }
               }
@@ -94,6 +95,7 @@ export const getSessionById = async (req: Request, res: Response, next: NextFunc
                 select: {
                   Personel: {
                     select: {
+                      id: true,
                       name: true
                     }
                   }
