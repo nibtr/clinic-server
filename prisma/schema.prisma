@@ -138,8 +138,8 @@ model Session {
   ExaminationSession                       ExaminationSession?
   ReExaminationSession                     ReExaminationSession?
   Patient                                  Patient               @relation(fields: [patientID], references: [id], onUpdate: NoAction, map: "FK_Session_Patient")
-  Personnel_Session_assistantIDToPersonnel Personnel?            @relation("Session_assistantIDToPersonnel", fields: [assistantID], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_Session_Personnel_assistantID")
-  Personnel_Session_dentistIDToPersonnel   Personnel             @relation("Session_dentistIDToPersonnel", fields: [dentistID], references: [id], onUpdate: NoAction, map: "FK_Session_Personnel_dentistID")
+  Assistant Personnel?            @relation("Session_assistantIDToPersonnel", fields: [assistantID], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_Session_Personnel_assistantID")
+  Dentist   Personnel             @relation("Session_dentistIDToPersonnel", fields: [dentistID], references: [id], onUpdate: NoAction, map: "FK_Session_Personnel_dentistID")
   Room                                     Room                  @relation(fields: [roomID], references: [id], onUpdate: NoAction, map: "FK_Session_Room")
   TreatmentSession                         TreatmentSession?
 }
@@ -183,6 +183,6 @@ model Personnel {
   type                                   String     @db.Char(3)
   Account                                Account?
   Schedule                               Schedule[]
-  Session_Session_assistantIDToPersonnel Session[]  @relation("Session_assistantIDToPersonnel")
-  Session_Session_dentistIDToPersonnel   Session[]  @relation("Session_dentistIDToPersonnel")
+  SessionOfAssistant Session[]  @relation("Session_assistantIDToPersonnel")
+  SessionOfDentist   Session[]  @relation("Session_dentistIDToPersonnel")
 }

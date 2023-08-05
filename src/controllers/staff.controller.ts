@@ -265,12 +265,12 @@ export const getReExaminations = async (req: Request, res: Response, next: NextF
                             },
                             dentistID: true,
                             assistantID: true,
-                            Personnel_Session_assistantIDToPersonnel: {
+                            Assistant: {
                                 select: {
                                     name: true
                                 }
                             },
-                            Personnel_Session_dentistIDToPersonnel: {
+                            Dentist: {
                                 select: {
                                     name: true
                                 }
