@@ -62,7 +62,7 @@ export const getSessionById = async (req: Request, res: Response, next: NextFunc
   try {
 
     let { limit, page, today } = req.query;
-    let where: any = { personnelSession: { dentistID: parseInt(req.params.id) } };
+    let where: any = { dentistID: parseInt(req.params.id) };
 
     if (!limit) {
       return res.status(400).json(messageResponse(400, "limit is required"))
@@ -98,14 +98,8 @@ export const getSessionById = async (req: Request, res: Response, next: NextFunc
           patientID: true,
           roomID: true,
           type: true,
-          PersonnelSession: {
-            select:{
-                id: true,
-                dentistID: true,
-                assistantID: true,
-            }
-            
-        }
+          dentistID: true,
+          assistantID: true
         }
 
       })

@@ -208,14 +208,8 @@ export const getSessions = async (req: Request, res: Response, next: NextFunctio
                     patientID: true,
                     roomID: true,
                     type: true,
-                    PersonnelSession: {
-                        select: {
-                            id: true,
-                            dentistID: true,
-                            assistantID: true,
-                        }
-
-                    }
+                    dentistID: true,
+                    assistantID: true,
                 }
             })
         ])
@@ -230,78 +224,7 @@ export const getSessions = async (req: Request, res: Response, next: NextFunctio
     }
 }
 
-export const getExaminations = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        let { limit, page, today } = req.query
-        let where: any = { session: { type: 'EXA' } }
 
-        if (!limit) {
-            return res.status(400).json(messageResponse(400, "limit is required"))
-        }
-        if (!page) {
-            page = "0"
-        }
-        if (today === "true") {
-            where.session.time = {
-                gte: new Date(new Date().setHours(0, 0, 0, 0)),
-                lte: new Date(new Date().setHours(23, 59, 59, 999)),
-            }
-        }
-        const [total, listExam] = await prismaClient.$transaction([
-            prismaClient.examinationSession.count(),
-            prismaClient.examinationSession.findMany({
-                take: Number(limit),
-                skip: Number(page) * Number(limit),
-                orderBy: {
-                    Session: {
-                        time: "desc",
-                    }
-                },
-                where,
-                select: {
-                    Session: {
-                        select: {
-                            time: true,
-                            status: true,
-                            Room: {
-                                select: {
-                                    name: true
-                                }
-                            },
-                            PersonnelSession: {
-                                select: {
-                                    id: true,
-                                    dentistID: true,
-                                    assistantID: true,
-                                    Personnel_PersonnelSession_assistantIDToPersonnel: {
-                                        select: {
-                                            name: true
-                                        }
-                                    },
-                                    Personnel_PersonnelSession_dentistIDToPersonnel: {
-                                        select: {
-                                            name: true
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                
-            })
-        ])
-        return res.status(200).json(
-            messageResponse(200, {
-                list: listExam,
-                total: total
-            })
-        )
-    }
-    catch (error) {
-        next(error)
-    }
-}
 
 export const getReExaminations = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -340,21 +263,16 @@ export const getReExaminations = async (req: Request, res: Response, next: NextF
                                     name: true
                                 }
                             },
-                            PersonnelSession: {
+                            dentistID: true,
+                            assistantID: true,
+                            Personnel_Session_assistantIDToPersonnel: {
                                 select: {
-                                    id: true,
-                                    dentistID: true,
-                                    assistantID: true,
-                                    Personnel_PersonnelSession_assistantIDToPersonnel: {
-                                        select: {
-                                            name: true
-                                        }
-                                    },
-                                    Personnel_PersonnelSession_dentistIDToPersonnel: {
-                                        select: {
-                                            name: true
-                                        }
-                                    }
+                                    name: true
+                                }
+                            },
+                            Personnel_Session_dentistIDToPersonnel: {
+                                select: {
+                                    name: true
                                 }
                             }
                         }
@@ -374,46 +292,3 @@ export const getReExaminations = async (req: Request, res: Response, next: NextF
     }
 }
 
-export const getRooms = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        let { limit, page } = req.query;
-        let where = {};
-        if (!limit) {
-            return res.status(400).json(messageResponse(400, "limit is required"));
-        }
-        if (!page) {
-            page = "0";
-        }
-
-
-        const [total, listRoom] = await prismaClient.$transaction([
-            prismaClient.room.count(),
-            prismaClient.room.findMany({
-                take: Number(limit),
-                skip: Number(page) * Number(limit),
-                where,
-                orderBy: {
-                    id: 'asc'
-                },
-                select: {
-                    id: true,
-                    name: true,
-                    code: true,
-                    Session: {
-                        select: {
-                            patientID: true
-                        }
-                    }
-                }
-            })
-        ])
-
-        res.status(200).json(messageResponse(200, {
-            list: listRoom,
-            total: total
-        }));
-    } catch (error) {
-        next(error);
-        res.status(500).send('Internal Server Error');;
-    }
-}
