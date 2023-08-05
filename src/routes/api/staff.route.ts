@@ -13,4 +13,14 @@ router.get('/assistants/:id', staffController.getAssistantById);
 router.get('/patients/:id', staffController.getPatientById);
 router.get('/sessions/:id', staffController.getSessions);
 
+router.get("/appointment-requests", staffController.getAppointmentRequest);
+router.get("/patients", staffController.getPatients);
+router.get("/dentists", staffController.getDentists);
+router.get("/rooms", staffController.getRooms);
+router.get("/dentist-for-patient", staffController.findDentistForOldPatient);
+router.post("/examination", staffController.postExamination);
+router.get("/examinations", staffController.getExaminations);
+
+
 export default router;
+1;

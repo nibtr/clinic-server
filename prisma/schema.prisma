@@ -23,7 +23,7 @@ model AppointmentRequest {
   note            String?  @db.NVarChar(255)
   patientName     String   @db.NVarChar(50)
   patientPhone    String   @db.Char(10)
-  categoryName    String   @db.NVarChar(50)
+  categoryName    String?   @db.NVarChar(50)
 }
 
 model Category {
