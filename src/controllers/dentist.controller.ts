@@ -3,11 +3,10 @@ import prismaClient from "../utils/prismaClient";
 import { messageResponse } from "../utils/messageResponse";
 import { DENTIST_TYPE } from "../constant";
 
-export const getDentists = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+// import jwt from 'jsonwebtoken';
+
+import { comparePassword } from '../utils/passwordUtil';
+export const getDentists = async (req: Request, res: Response, next: NextFunction) => {
   try {
     let { limit, page } = req.query;
     // let where: any = { dentistID: parseInt(req.params.id) };
