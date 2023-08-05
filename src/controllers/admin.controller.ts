@@ -19,7 +19,6 @@ export const getStaffs = async (
     if (!page) {
       page = "0";
     }
-
     const [total, listStaff] = await prismaClient.$transaction([
       prismaClient.personnel.count({
         where: {
