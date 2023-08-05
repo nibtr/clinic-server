@@ -10,7 +10,6 @@ export const getStaffs = async (
 ) => {
   try {
     let { limit, page } = request.query;
-
     if (!limit) {
       return response
         .status(400)
