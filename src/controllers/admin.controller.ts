@@ -1,51 +1,8 @@
-import { NextFunction, Request, Response } from "express";
-import prismaClient from "../utils/prismaClient";
 import { STAFF_TYPE } from "../constant";
+import { getPersonnelFollowingType } from "./common.controller";
 import { messageResponse } from "../utils/messageResponse";
+import { NextFunction, Request, Response } from "express";
 
-export const getStaff = async (
-  request: Request,
-  response: Response,
-  next: NextFunction
-) => {
-  try {
-    let { limit, page } = request.query;
-
-    if (!limit) {
-      return response
-        .status(400)
-        .json(messageResponse(400, "limit is required"));
-    }
-
-    if (!page) {
-      page = "0";
-    }
-
-    const [total, listStaff] = await prismaClient.$transaction([
-      prismaClient.personnel.count({
-        where: {
-          type: STAFF_TYPE,
-        },
-      }),
-      prismaClient.personnel.findMany({
-        skip: Number(limit) * Number(page),
-        take: Number(limit),
-        where: {
-          type: STAFF_TYPE,
-        },
-      }),
-    ]);
-
-    return response.status(200).json(
-      messageResponse(200, {
-        list: listStaff,
-        total,
-      })
-    );
-  } catch (error) {
-    next(error);
-  }
-};
 
 // export const postStaff = async (
 //   request: Request,
@@ -99,3 +56,6 @@ export const getStaff = async (
 //     next(error);
 //   }
 // };
+
+export const getStaffs = getPersonnelFollowingType(STAFF_TYPE);
+

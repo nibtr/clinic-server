@@ -9,10 +9,10 @@ datasource db {
 
 model Account {
   id          Int       @id @default(autoincrement())
-  username    String    @unique(map: "UQ__Account__F3DBC5723303EAEF") @db.Char(10)
+  username    String    @unique(map: "UQ__Account__F3DBC572C75CC4AB") @db.Char(10)
   password    String    @db.Char(60)
-  email       String    @unique(map: "UQ__Account__AB6E6164E36E588C") @db.VarChar(50)
-  personnelID Int       @unique(map: "UQ__Account__57D5B0233A98FDF3")
+  email       String    @unique(map: "UQ__Account__AB6E6164824D0AA4") @db.VarChar(50)
+  personnelID Int       @unique(map: "UQ__Account__57D5B02380BF231E")
   Personnel   Personnel @relation(fields: [personnelID], references: [id], map: "FK_Account_Personnel")
 }
 
@@ -23,18 +23,12 @@ model AppointmentRequest {
   note            String?  @db.NVarChar(255)
   patientName     String   @db.NVarChar(50)
   patientPhone    String   @db.Char(10)
-  categoryName    String   @db.NVarChar(50)
-}
-
-model Assistant {
-  id      Int       @id
-  Dentist Dentist   @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_Assistant_Dentist")
-  Session Session[]
+  categoryName    String?   @db.NVarChar(50)
 }
 
 model Category {
   id               Int                @id @default(autoincrement())
-  code             String             @unique(map: "UQ__Category__357D4CF92CF7800B") @db.Char(3)
+  code             String             @unique(map: "UQ__Category__357D4CF90E58FFC7") @db.Char(3)
   name             String             @db.NVarChar(50)
   description      String?            @db.NVarChar(255)
   Procedure        Procedure[]
@@ -43,21 +37,13 @@ model Category {
 
 model Day {
   id       Int        @id @default(autoincrement())
-  day      String     @unique(map: "UQ__Day__D8779320F4E2B7F9") @db.Char(3)
+  day      String     @unique(map: "UQ__Day__D8779320E0685A11") @db.Char(3)
   Schedule Schedule[]
-}
-
-model Dentist {
-  id        Int        @id
-  Assistant Assistant?
-  Personel  Personnel  @relation(fields: [id], references: [id], onUpdate: NoAction, map: "FK_Dentist_Personel")
-  Schedule  Schedule[]
-  Session   Session[]
 }
 
 model Drug {
   id           Int            @id @default(autoincrement())
-  code         String         @unique(map: "UQ__Drug__357D4CF9C3C84795") @db.Char(17)
+  code         String         @unique(map: "UQ__Drug__357D4CF9F6DA43C7") @db.Char(17)
   name         String         @db.VarChar(50)
   description  String?        @db.NVarChar(255)
   price        Int
@@ -73,9 +59,12 @@ model ExaminationSession {
 model Patient {
   id                   Int             @id
   drugContraindication String?         @db.NVarChar(500)
-  oralHealthStatus     String?         @db.NVarChar(500)
   allergyStatus        String?         @db.NVarChar(255)
-  Personel             Personnel       @relation(fields: [id], references: [id], map: "FK_Patient_Personel")
+  nationalID           String          @unique(map: "UQ__Patient__B5881E88434C54AC") @db.Char(12)
+  name                 String          @db.NVarChar(50)
+  dob                  DateTime?       @db.Date
+  gender               String?         @db.Char(1)
+  phone                String          @unique(map: "UQ__Patient__B43B145F889CDFA6") @db.Char(10)
   PaymentRecord        PaymentRecord[]
   Session              Session[]
 }
@@ -84,11 +73,11 @@ model PaymentRecord {
   id                 Int              @id @default(autoincrement())
   date               DateTime         @db.Date
   total              Int
-  paid               Int?             @default(0, map: "DF__PaymentRec__paid__48CFD27E")
-  change             Int?             @default(0, map: "DF__PaymentRe__chang__49C3F6B7")
+  paid               Int
+  change             Int
   method             String?          @db.Char(1)
   patientID          Int
-  treatmentSessionID Int              @unique(map: "UQ__PaymentR__8DF2A23F906F1D42")
+  treatmentSessionID Int              @unique(map: "UQ__PaymentR__8DF2A23F6732B5CC")
   Patient            Patient          @relation(fields: [patientID], references: [id], map: "FK_PaymentRecord_Patient")
   TreatmentSession   TreatmentSession @relation(fields: [treatmentSessionID], references: [id], map: "FK_PaymentRecord_TreatmentSession")
 }
@@ -105,7 +94,7 @@ model Prescription {
 
 model Procedure {
   id          Int      @id @default(autoincrement())
-  code        String   @unique(map: "UQ__Procedur__357D4CF9970AF48A") @db.Char(3)
+  code        String   @unique(map: "UQ__Procedur__357D4CF9C8EE5B2F") @db.Char(3)
   name        String   @db.NVarChar(50)
   description String?  @db.NVarChar(500)
   fee         Int
@@ -122,7 +111,7 @@ model ReExaminationSession {
 
 model Room {
   id      Int       @id @default(autoincrement())
-  code    String    @unique(map: "UQ__Room__357D4CF9BF685C7F") @db.Char(6)
+  code    String    @unique(map: "UQ__Room__357D4CF9F3DCEE65") @db.Char(6)
   name    String    @db.VarChar(50)
   Session Session[]
 }
@@ -130,39 +119,34 @@ model Room {
 model Schedule {
   dayID     Int
   dentistID Int
-  Day       Day     @relation(fields: [dayID], references: [id], onUpdate: NoAction, map: "FK_Schedule_Day")
-  Dentist   Dentist @relation(fields: [dentistID], references: [id], onUpdate: NoAction, map: "FK_Schedule_Dentist")
+  Day       Day       @relation(fields: [dayID], references: [id], onUpdate: NoAction, map: "FK_Schedule_Day")
+  Dentist   Personnel @relation(fields: [dentistID], references: [id], map: "FK_Schedule_Dentist")
 
   @@id([dayID, dentistID])
 }
 
 model Session {
-  id                   Int                   @id @default(autoincrement())
-  time                 DateTime
-  note                 String?
-  status               String?               @default("SCH", map: "DF__Session__status__4CA06362") @db.Char(3)
-  patientID            Int
-  assistantID          Int?
-  dentistID            Int
-  roomID               Int
-  type                 String                @db.Char(3)
-  ExaminationSession   ExaminationSession?
-  ReExaminationSession ReExaminationSession?
-  Assistant            Assistant?            @relation(fields: [assistantID], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_Session_Assistant")
-  Dentist              Dentist               @relation(fields: [dentistID], references: [id], onUpdate: NoAction, map: "FK_Session_Dentist")
-  Patient              Patient               @relation(fields: [patientID], references: [id], onUpdate: NoAction, map: "FK_Session_Patient")
-  Room                 Room                  @relation(fields: [roomID], references: [id], onUpdate: NoAction, map: "FK_Session_Room")
-  TreatmentSession     TreatmentSession?
-}
-
-model Staff {
-  id       Int       @id
-  Personel Personnel @relation(fields: [id], references: [id], map: "FK_Staff_Personel")
+  id                                       Int                   @id @default(autoincrement())
+  time                                     DateTime
+  note                                     String?
+  status                                   String?               @default("SCH", map: "DF__Session__status__46E78A0C") @db.Char(3)
+  patientID                                Int
+  roomID                                   Int
+  dentistID                                Int
+  assistantID                              Int?
+  type                                     String                @db.Char(3)
+  ExaminationSession                       ExaminationSession?
+  ReExaminationSession                     ReExaminationSession?
+  Patient                                  Patient               @relation(fields: [patientID], references: [id], onUpdate: NoAction, map: "FK_Session_Patient")
+  Assistant Personnel?            @relation("Session_assistantIDToPersonnel", fields: [assistantID], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_Session_Personnel_assistantID")
+  Dentist   Personnel             @relation("Session_dentistIDToPersonnel", fields: [dentistID], references: [id], onUpdate: NoAction, map: "FK_Session_Personnel_dentistID")
+  Room                                     Room                  @relation(fields: [roomID], references: [id], onUpdate: NoAction, map: "FK_Session_Room")
+  TreatmentSession                         TreatmentSession?
 }
 
 model Tooth {
   id           Int            @id @default(autoincrement())
-  type         String         @unique(map: "UQ__Tooth__E3F85248BA1EA78C") @db.Char(1)
+  type         String         @unique(map: "UQ__Tooth__E3F85248CA9F3E88") @db.Char(1)
   name         String         @db.VarChar(50)
   ToothSession ToothSession[]
 }
@@ -190,15 +174,15 @@ model TreatmentSession {
 }
 
 model Personnel {
-  id         Int       @id @default(autoincrement())
-  nationalID String    @unique(map: "UQ__Personne__B5881E88B9F6870B") @db.Char(12)
-  name       String    @db.NVarChar(50)
-  dob        DateTime? @db.Date
-  gender     String?   @db.Char(1)
-  phone      String    @unique(map: "UQ__Personne__B43B145FA99EE667") @db.Char(10)
-  type       String    @db.Char(3)
-  Account    Account?
-  Dentist    Dentist?
-  Patient    Patient?
-  Staff      Staff?
+  id                                     Int        @id @default(autoincrement())
+  nationalID                             String     @unique(map: "UQ__Personne__B5881E889E6D6824") @db.Char(12)
+  name                                   String     @db.NVarChar(50)
+  dob                                    DateTime?  @db.Date
+  gender                                 String?    @db.Char(1)
+  phone                                  String     @unique(map: "UQ__Personne__B43B145F8AAA5415") @db.Char(10)
+  type                                   String     @db.Char(3)
+  Account                                Account?
+  Schedule                               Schedule[]
+  SessionOfAssistant Session[]  @relation("Session_assistantIDToPersonnel")
+  SessionOfDentist   Session[]  @relation("Session_dentistIDToPersonnel")
 }
