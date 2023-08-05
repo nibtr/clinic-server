@@ -47,12 +47,8 @@ export const getDentistById = async (req: Request, res: Response, next: NextFunc
           name: true,
           dob: true,
           gender: true,
-          phone: true,
-          age: true
-        },
-        orderBy: {
-          id: "asc"
-        },
+          phone: true
+        }
       });
       res.status(200).json(dentist);
     })
@@ -66,7 +62,7 @@ export const getSessionById = async (req: Request, res: Response, next: NextFunc
   try {
 
     let { limit, page, today } = req.query;
-    let where: any = { dentistID: parseInt(req.params.id) };
+    let where: any = { personnelSession: { dentistID: parseInt(req.params.id) } };
 
     if (!limit) {
       return res.status(400).json(messageResponse(400, "limit is required"))
@@ -77,7 +73,7 @@ export const getSessionById = async (req: Request, res: Response, next: NextFunc
     }
 
     if (today === "true") {
-      where.session.time = {
+      where.time = {
         gte: new Date(new Date().setHours(0, 0, 0, 0)),
         lte: new Date(new Date().setHours(23, 59, 59, 999))
       }
@@ -87,7 +83,7 @@ export const getSessionById = async (req: Request, res: Response, next: NextFunc
       prismaClient.session.count({
         where
       }),
-      prismaClient.personnelSession.findMany({
+      prismaClient.session.findMany({
         take: Number(limit),
         skip: Number(page) * Number(limit),
         where,
@@ -96,22 +92,20 @@ export const getSessionById = async (req: Request, res: Response, next: NextFunc
         },
         select: {
           id: true,
-          dentistID: true,
-          assistantID: true,
-          sessionID: true,
-          Session: {
-            select: {
-              status: true,
-              time: true,
-              RoomID: true,
-              Room: {
-                select: {
-                  name: true,
-                  code: true
-                }
-              }
+          time: true,
+          status: true,
+          note: true,
+          patientID: true,
+          roomID: true,
+          type: true,
+          PersonnelSession: {
+            select:{
+                id: true,
+                dentistID: true,
+                assistantID: true,
             }
-          }
+            
+        }
         }
 
       })

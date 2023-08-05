@@ -3,52 +3,6 @@ import prismaClient from "../utils/prismaClient";
 import { messageResponse } from "../utils/messageResponse";
 import { STAFF_TYPE, DENTIST_TYPE, PATIENT_TYPE } from "../constant";
 
-
-export const getStaffs = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        let { limit, page } = req.query
-        let where: any = { type: STAFF_TYPE };
-
-        if (!limit) {
-            return res.status(400).json(messageResponse(400, "limit is required"))
-        }
-        if (!page) {
-            page = "0"
-        }
-
-        const [total, listStaff] = await prismaClient.$transaction([
-            prismaClient.personnel.count({
-                where
-            }),
-            prismaClient.personnel.findMany({
-                take: Number(limit),
-                skip: Number(page) * Number(limit),
-                orderBy: {
-                    id: "asc"
-                },
-                where,
-                select: {
-                    id: true,
-                    name: true,
-                    dob: true,
-                    gender: true,
-                    phone: true,
-                    nationalID: true,
-                    age: true
-                }
-            })
-
-        ])
-        res.status(200).json(messageResponse(200, {
-            list: listStaff,
-            total: total
-        }));
-    } catch (error) {
-        next(error);
-        res.status(500).send('Internal Server Error');;
-    }
-}
-
 export const getStaffById = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const staff = await prismaClient.$transaction([
@@ -64,7 +18,6 @@ export const getStaffById = async (req: Request, res: Response, next: NextFuncti
                     gender: true,
                     phone: true,
                     nationalID: true,
-                    age: true,
                 }
             })
         ])
@@ -102,7 +55,6 @@ export const getPersonels = async (req: Request, res: Response, next: NextFuncti
                     dob: true,
                     gender: true,
                     phone: true,
-                    age: true
                 }
             })
         ]);
@@ -132,53 +84,10 @@ export const getPersonelById = async (req: Request, res: Response, next: NextFun
                     dob: true,
                     gender: true,
                     phone: true,
-                    age: true
                 }
             })
         ])
         res.status(200).json(messageResponse(200, personnel));
-    } catch (error) {
-        next(error);
-        res.status(500).send('Internal Server Error');;
-    }
-}
-
-export const getDentists = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        let { limit, page } = req.query
-        let where: any = { type: DENTIST_TYPE };
-        if (!limit) {
-            return res.status(400).json(messageResponse(400, "limit is required"))
-        }
-        if (!page) {
-            page = "0"
-        }
-        const [total, listDentist] = await prismaClient.$transaction([
-            prismaClient.personnel.count({
-                where
-            }),
-            prismaClient.personnel.findMany({
-                take: Number(limit),
-                skip: Number(page) * Number(limit),
-                orderBy: {
-                    id: "asc"
-                },
-                where,
-                select: {
-                    id: true,
-                    nationalID: true,
-                    name: true,
-                    dob: true,
-                    gender: true,
-                    phone: true,
-                    age: true
-                }
-            })
-        ]);
-        res.status(200).json(messageResponse(200, {
-            list: listDentist,
-            total: total
-        }));
     } catch (error) {
         next(error);
         res.status(500).send('Internal Server Error');;
@@ -200,52 +109,10 @@ export const getDentistById = async (req: Request, res: Response, next: NextFunc
                     dob: true,
                     gender: true,
                     phone: true,
-                    age: true,
                 }
             })
         ])
         res.status(200).json(messageResponse(200, dentist));
-    } catch (error) {
-        next(error);
-        res.status(500).send('Internal Server Error');;
-    }
-}
-
-
-export const getAssistants = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        let { limit, page } = req.query
-        let where: any = { type: DENTIST_TYPE }
-        if (!limit) {
-            return res.status(400).json(messageResponse(400, "limit is required"))
-        }
-        if (!page) {
-            page = "0"
-        }
-        const [total, listAssistant] = await prismaClient.$transaction([
-            prismaClient.personnel.count({ where }),
-            prismaClient.personnel.findMany({
-                take: Number(limit),
-                skip: Number(page) * Number(limit),
-                orderBy: {
-                    id: "asc"
-                },
-                where,
-                select: {
-                    id: true,
-                    nationalID: true,
-                    name: true,
-                    dob: true,
-                    gender: true,
-                    phone: true,
-                    age: true
-                }
-            })
-        ]);
-        res.status(200).json(messageResponse(200, {
-            list: listAssistant,
-            total: total
-        }));
     } catch (error) {
         next(error);
         res.status(500).send('Internal Server Error');;
@@ -267,52 +134,11 @@ export const getAssistantById = async (req: Request, res: Response, next: NextFu
                     dob: true,
                     gender: true,
                     phone: true,
-                    age: true
                 }
             })
         ])
         res.status(200).json(messageResponse(200, assistant
         ));
-    } catch (error) {
-        next(error);
-        res.status(500).send('Internal Server Error');;
-    }
-}
-
-export const getPatients = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        let { limit, page } = req.query
-
-        if (!limit) {
-            return res.status(400).json(messageResponse(400, "limit is required"))
-        }
-        if (!page) {
-            page = "0"
-        }
-        const [total, listPatient] = await prismaClient.$transaction([
-            prismaClient.patient.count(),
-            prismaClient.patient.findMany({
-                take: Number(limit),
-                skip: Number(page) * Number(limit),
-                orderBy: {
-                    id: "asc"
-                },
-                select: {
-                    id: true,
-                    nationalID: true,
-                    name: true,
-                    dob: true,
-                    gender: true,
-                    phone: true
-                    drugContraindication: true,
-                    allergyStatus: true
-                }
-            })
-        ]);
-        res.status(200).json(messageResponse(200, {
-            list: listPatient,
-            total: total
-        }));
     } catch (error) {
         next(error);
         res.status(500).send('Internal Server Error');;
@@ -328,12 +154,11 @@ export const getPatientById = async (req: Request, res: Response, next: NextFunc
                 },
                 select: {
                     id: true,
-                    id: true,
                     nationalID: true,
                     name: true,
                     dob: true,
                     gender: true,
-                    phone: true
+                    phone: true,
                     drugContraindication: true,
                     allergyStatus: true
                 }
@@ -369,8 +194,8 @@ export const getSessions = async (req: Request, res: Response, next: NextFunctio
         }
 
         const [total, listSession] = await prismaClient.$transaction([
-            prismaClient.personnelsession.count({ where }),
-            prismaClient.personnelsession.findMany({
+            prismaClient.session.count({ where }),
+            prismaClient.session.findMany({
                 take: Number(limit),
                 skip: Number(page) * Number(limit),
                 where,
@@ -379,16 +204,19 @@ export const getSessions = async (req: Request, res: Response, next: NextFunctio
                 },
                 select: {
                     id: true,
-                    dentistID: true,
-                    assistantID: true,
-                    sessionID: true,
-                    Session:{
-                        time: true,
-                        status: true,
-                        note: true,
-                        patientID: true,
-                        roomID: true,
-                        type: true
+                    time: true,
+                    status: true,
+                    note: true,
+                    patientID: true,
+                    roomID: true,
+                    type: true,
+                    PersonnelSession: {
+                        select: {
+                            id: true,
+                            dentistID: true,
+                            assistantID: true,
+                        }
+
                     }
                 }
             })
@@ -404,62 +232,10 @@ export const getSessions = async (req: Request, res: Response, next: NextFunctio
     }
 }
 
-
-export const getAppointmentRequest = async (
-    request: Request,
-    response: Response,
-    next: NextFunction
-) => {
-    try {
-        let { limit, page, today } = request.query;
-        let where = {};
-
-        if (!limit) {
-            return response
-                .status(400)
-                .json(messageResponse(400, "limit is required"));
-        }
-
-        if (!page) {
-            page = "0";
-        }
-
-        if (today === "true") {
-            where = {
-                requestTime: {
-                    gte: new Date(new Date().setHours(0, 0, 0, 0)),
-                    lte: new Date(new Date().setHours(23, 59, 59, 999)),
-                },
-            };
-        }
-
-        const [total, listAppointmentReq] = await prismaClient.$transaction([
-            prismaClient.appointmentRequest.count(),
-            prismaClient.appointmentRequest.findMany({
-                take: Number(limit),
-                skip: Number(page) * Number(limit),
-                orderBy: {
-                    requestTime: "desc",
-                },
-                where,
-            }),
-        ]);
-
-        return response.status(200).json(
-            messageResponse(200, {
-                list: listAppointmentReq,
-                total,
-            })
-        );
-    } catch (error) {
-        next(error);
-    }
-};
-
 export const getExaminations = async (req: Request, res: Response, next: NextFunction) => {
     try {
         let { limit, page, today } = req.query
-        let where: any = {}
+        let where: any = { session: { type: 'EXA' } }
 
         if (!limit) {
             return res.status(400).json(messageResponse(400, "limit is required"))
@@ -494,18 +270,17 @@ export const getExaminations = async (req: Request, res: Response, next: NextFun
                                     name: true
                                 }
                             },
-                            Patient: {
+                            PersonnelSession: {
                                 select: {
-                                    Personel: {
+                                    id: true,
+                                    dentistID: true,
+                                    assistantID: true,
+                                    Personnel_PersonnelSession_assistantIDToPersonnel: {
                                         select: {
                                             name: true
                                         }
-                                    }
-                                }
-                            },
-                            Dentist: {
-                                select: {
-                                    Personel: {
+                                    },
+                                    Personnel_PersonnelSession_dentistIDToPersonnel: {
                                         select: {
                                             name: true
                                         }
@@ -514,7 +289,8 @@ export const getExaminations = async (req: Request, res: Response, next: NextFun
                             }
                         }
                     }
-                }
+                },
+                
             })
         ])
         return res.status(200).json(
@@ -532,8 +308,7 @@ export const getExaminations = async (req: Request, res: Response, next: NextFun
 export const getReExaminations = async (req: Request, res: Response, next: NextFunction) => {
     try {
         let { limit, page, today } = req.query
-        let where: any = {}
-
+        let where: any = { session: { type: 'EXA' } }
         if (!limit) {
             return res.status(400).json(messageResponse(400, "limit is required"))
         }
@@ -567,18 +342,17 @@ export const getReExaminations = async (req: Request, res: Response, next: NextF
                                     name: true
                                 }
                             },
-                            Patient: {
+                            PersonnelSession: {
                                 select: {
-                                    Personel: {
+                                    id: true,
+                                    dentistID: true,
+                                    assistantID: true,
+                                    Personnel_PersonnelSession_assistantIDToPersonnel: {
                                         select: {
                                             name: true
                                         }
-                                    }
-                                }
-                            },
-                            Dentist: {
-                                select: {
-                                    Personel: {
+                                    },
+                                    Personnel_PersonnelSession_dentistIDToPersonnel: {
                                         select: {
                                             name: true
                                         }

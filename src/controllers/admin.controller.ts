@@ -3,7 +3,7 @@ import prismaClient from "../utils/prismaClient";
 import { STAFF_TYPE } from "../constant";
 import { messageResponse } from "../utils/messageResponse";
 
-export const getStaff = async (
+export const getStaffs = async (
   request: Request,
   response: Response,
   next: NextFunction
