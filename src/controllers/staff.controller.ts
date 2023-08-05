@@ -220,14 +220,8 @@ export const getSessions = async (req: Request, res: Response, next: NextFunctio
                     patientID: true,
                     roomID: true,
                     type: true,
-                    PersonnelSession: {
-                        select: {
-                            id: true,
-                            dentistID: true,
-                            assistantID: true,
-                        }
-
-                    }
+                    dentistID: true,
+                    assistantID: true,
                 }
             })
         ])
@@ -279,21 +273,16 @@ export const getReExaminations = async (req: Request, res: Response, next: NextF
                                     name: true
                                 }
                             },
-                            PersonnelSession: {
+                            dentistID: true,
+                            assistantID: true,
+                            Assistant: {
                                 select: {
-                                    id: true,
-                                    dentistID: true,
-                                    assistantID: true,
-                                    Personnel_PersonnelSession_assistantIDToPersonnel: {
-                                        select: {
-                                            name: true
-                                        }
-                                    },
-                                    Personnel_PersonnelSession_dentistIDToPersonnel: {
-                                        select: {
-                                            name: true
-                                        }
-                                    }
+                                    name: true
+                                }
+                            },
+                            Dentist: {
+                                select: {
+                                    name: true
                                 }
                             }
                         }
