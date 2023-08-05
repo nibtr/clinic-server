@@ -23,7 +23,7 @@ model AppointmentRequest {
   note            String?  @db.NVarChar(255)
   patientName     String   @db.NVarChar(50)
   patientPhone    String   @db.Char(10)
-  categoryName    String?   @db.NVarChar(50)
+  categoryName    String?  @db.NVarChar(50)
 }
 
 model Category {
@@ -126,22 +126,22 @@ model Schedule {
 }
 
 model Session {
-  id                                       Int                   @id @default(autoincrement())
-  time                                     DateTime
-  note                                     String?
-  status                                   String?               @default("SCH", map: "DF__Session__status__46E78A0C") @db.Char(3)
-  patientID                                Int
-  roomID                                   Int
-  dentistID                                Int
-  assistantID                              Int?
-  type                                     String                @db.Char(3)
-  ExaminationSession                       ExaminationSession?
-  ReExaminationSession                     ReExaminationSession?
-  Patient                                  Patient               @relation(fields: [patientID], references: [id], onUpdate: NoAction, map: "FK_Session_Patient")
-  Assistant Personnel?            @relation("Session_assistantIDToPersonnel", fields: [assistantID], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_Session_Personnel_assistantID")
-  Dentist   Personnel             @relation("Session_dentistIDToPersonnel", fields: [dentistID], references: [id], onUpdate: NoAction, map: "FK_Session_Personnel_dentistID")
-  Room                                     Room                  @relation(fields: [roomID], references: [id], onUpdate: NoAction, map: "FK_Session_Room")
-  TreatmentSession                         TreatmentSession?
+  id                   Int                   @id @default(autoincrement())
+  time                 DateTime
+  note                 String?
+  status               String?               @default("SCH", map: "DF__Session__status__46E78A0C") @db.Char(3)
+  patientID            Int
+  roomID               Int
+  dentistID            Int
+  assistantID          Int?
+  type                 String                @db.Char(3)
+  ExaminationSession   ExaminationSession?
+  ReExaminationSession ReExaminationSession?
+  Patient              Patient               @relation(fields: [patientID], references: [id], onUpdate: NoAction, map: "FK_Session_Patient")
+  Assistant            Personnel?            @relation("Session_assistantIDToPersonnel", fields: [assistantID], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_Session_Personnel_assistantID")
+  Dentist              Personnel             @relation("Session_dentistIDToPersonnel", fields: [dentistID], references: [id], onUpdate: NoAction, map: "FK_Session_Personnel_dentistID")
+  Room                 Room                  @relation(fields: [roomID], references: [id], onUpdate: NoAction, map: "FK_Session_Room")
+  TreatmentSession     TreatmentSession?
 }
 
 model Tooth {
@@ -174,15 +174,15 @@ model TreatmentSession {
 }
 
 model Personnel {
-  id                                     Int        @id @default(autoincrement())
-  nationalID                             String     @unique(map: "UQ__Personne__B5881E889E6D6824") @db.Char(12)
-  name                                   String     @db.NVarChar(50)
-  dob                                    DateTime?  @db.Date
-  gender                                 String?    @db.Char(1)
-  phone                                  String     @unique(map: "UQ__Personne__B43B145F8AAA5415") @db.Char(10)
-  type                                   String     @db.Char(3)
-  Account                                Account?
-  Schedule                               Schedule[]
+  id                 Int        @id @default(autoincrement())
+  nationalID         String     @unique(map: "UQ__Personne__B5881E889E6D6824") @db.Char(12)
+  name               String     @db.NVarChar(50)
+  dob                DateTime?  @db.Date
+  gender             String?    @db.Char(1)
+  phone              String     @unique(map: "UQ__Personne__B43B145F8AAA5415") @db.Char(10)
+  type               String     @db.Char(3)
+  Account            Account?
+  Schedule           Schedule[]
   SessionOfAssistant Session[]  @relation("Session_assistantIDToPersonnel")
   SessionOfDentist   Session[]  @relation("Session_dentistIDToPersonnel")
 }
