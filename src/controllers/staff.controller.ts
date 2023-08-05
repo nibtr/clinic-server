@@ -58,8 +58,6 @@ export const getPersonels = async (req: Request, res: Response, next: NextFuncti
                 }
             })
         ]);
-
-
         res.status(200).json(messageResponse(200, {
             list: listPersonnel,
             total: total
