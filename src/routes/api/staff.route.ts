@@ -20,7 +20,14 @@ router.get("/rooms", staffController.getRooms);
 router.get("/dentist-for-patient", staffController.findDentistForOldPatient);
 router.post("/examination", staffController.postExamination);
 router.get("/examinations", staffController.getExaminations);
+router.get("/examinations/:id", staffController.getExaminationInfo);
+router.get(
+  "/examinations/:id/re-examinations",
+  staffController.getReExaminationsOfExamination
+);
+
+router.get("/treatment-sessions", staffController.getTreatmentSessions);
+router.get("/treatment-sessions/:id", staffController.getTreatmentSessionInfo);
 
 
 export default router;
-1;
