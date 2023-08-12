@@ -17,13 +17,16 @@ model Account {
 }
 
 model AppointmentRequest {
-  id              Int      @id @default(autoincrement())
+  id              Int      @unique(map: "ClusteredIndex-20230812-125310", clustered: true) @default(autoincrement())
   appointmentTime DateTime
   requestTime     DateTime
   note            String?  @db.NVarChar(255)
   patientName     String   @db.NVarChar(50)
   patientPhone    String   @db.Char(10)
-  categoryName    String?  @db.NVarChar(50)
+  categoryName    String   @db.NVarChar(50)
+
+  @@index([appointmentTime], map: "idx_apm_time")
+  @@index([requestTime], map: "idx_appointment_req_time")
 }
 
 model Category {
@@ -67,6 +70,8 @@ model Patient {
   phone                String          @unique(map: "UQ__Patient__B43B145F889CDFA6") @db.Char(10)
   PaymentRecord        PaymentRecord[]
   Session              Session[]
+
+  @@index([name], map: "idx_patient_name")
 }
 
 model PaymentRecord {
@@ -80,6 +85,8 @@ model PaymentRecord {
   treatmentSessionID Int              @unique(map: "UQ__PaymentR__8DF2A23F6732B5CC")
   Patient            Patient          @relation(fields: [patientID], references: [id], map: "FK_PaymentRecord_Patient")
   TreatmentSession   TreatmentSession @relation(fields: [treatmentSessionID], references: [id], map: "FK_PaymentRecord_TreatmentSession")
+
+  @@index([patientID], map: "idx_payrec_patientID")
 }
 
 model Prescription {
@@ -142,6 +149,8 @@ model Session {
   Dentist              Personnel             @relation("Session_dentistIDToPersonnel", fields: [dentistID], references: [id], onUpdate: NoAction, map: "FK_Session_Personnel_dentistID")
   Room                 Room                  @relation(fields: [roomID], references: [id], onUpdate: NoAction, map: "FK_Session_Room")
   TreatmentSession     TreatmentSession?
+
+  @@index([patientID], map: "NonClusteredIndex-20230809-145130")
 }
 
 model Tooth {

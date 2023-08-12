@@ -26,12 +26,14 @@ export const makeAppointment = async (
     next: NextFunction
 ) => {
     try {
-        let { name, phone, appointmentTime, requestTime, note, category } = request.body;
+        const { patientName, patientPhone, appointmentTime, requestTime, note, categoryName } = request.body;
+        let appointmentTimeDate = new Date(appointmentTime);
+        let requestTimeDate = new Date(requestTime);
 
         const duplicateApm = await prismaClient.appointmentRequest.findFirst({
             where: {
-                patientPhone: phone,
-                appointmentTime: appointmentTime,
+                patientPhone: patientPhone,
+                appointmentTime: appointmentTimeDate,
             }
         });
 
@@ -40,7 +42,8 @@ export const makeAppointment = async (
             return;
         }
 
-        if (phone.length !== 10 || !phone.startsWith("0")) {
+
+        if (patientPhone.length !== 10 || !patientPhone.startsWith("0")) {
             response.status(400).json({ message: "Phone number is invalid" });
             return;
         }
@@ -48,12 +51,12 @@ export const makeAppointment = async (
         const appointment = await prismaClient.$transaction([
             prismaClient.appointmentRequest.create({
                 data: {
-                    patientName: name,
-                    patientPhone: phone,
-                    appointmentTime: appointmentTime,
-                    requestTime: requestTime,
+                    patientName: patientName,
+                    patientPhone: patientPhone,
+                    appointmentTime: appointmentTimeDate,
+                    requestTime: requestTimeDate,
                     note: note,
-                    categoryName: category,
+                    categoryName: categoryName,
                 }
 
             }),
