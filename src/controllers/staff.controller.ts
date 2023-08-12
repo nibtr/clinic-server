@@ -2,6 +2,7 @@ import { Request, NextFunction, Response } from "express";
 import prismaClient from "../utils/prismaClient";
 import { messageResponse } from "../utils/messageResponse";
 import {
+  ASSISTANT_TYPE,
   DENTIST_TYPE,
   PATIENT_TYPE,
   sessionStatus,
@@ -14,110 +15,9 @@ import {
   getPersonnelFollowingType,
   getRoomsFunction,
   getTreatmentInfoFunction,
+  postSession,
 } from "./common.controller";
 import { dayOfTheWeek, skipTake, splitDate } from "../utils/utils";
-
-export const getStaffById = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const staff = await prismaClient.$transaction([
-      prismaClient.personnel.findUnique({
-        where: {
-          id: parseInt(req.params.id),
-          type: STAFF_TYPE,
-        },
-        select: {
-          id: true,
-          name: true,
-          dob: true,
-          gender: true,
-          phone: true,
-          nationalID: true,
-        },
-      }),
-    ]);
-    res.status(200).json(messageResponse(200, staff));
-  } catch (error) {
-    next(error);
-    res.status(500).send("Internal Server Error");
-  }
-};
-
-export const getPersonels = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    let { limit, page } = req.query;
-
-    if (!limit) {
-      return res.status(400).json(messageResponse(400, "limit is required"));
-    }
-    if (!page) {
-      page = "0";
-    }
-
-    const [total, listPersonnel] = await prismaClient.$transaction([
-      prismaClient.personnel.count(),
-      prismaClient.personnel.findMany({
-        take: Number(limit),
-        skip: Number(page) * Number(limit),
-        orderBy: {
-          id: "asc",
-        },
-        select: {
-          id: true,
-          nationalID: true,
-          name: true,
-          dob: true,
-          gender: true,
-          phone: true,
-        },
-      }),
-    ]);
-    res.status(200).json(
-      messageResponse(200, {
-        list: listPersonnel,
-        total: total,
-      })
-    );
-  } catch (error) {
-    next(error);
-    res.status(500).send("Internal Server Error");
-  }
-};
-
-export const getPersonelById = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const personnel = await prismaClient.$transaction([
-      prismaClient.personnel.findUnique({
-        where: {
-          id: parseInt(req.params.id),
-        },
-        select: {
-          id: true,
-          nationalID: true,
-          name: true,
-          dob: true,
-          gender: true,
-          phone: true,
-        },
-      }),
-    ]);
-    res.status(200).json(messageResponse(200, personnel));
-  } catch (error) {
-    next(error);
-    res.status(500).send("Internal Server Error");
-  }
-};
 
 export const getDentistById = async (
   req: Request,
@@ -148,35 +48,6 @@ export const getDentistById = async (
   }
 };
 
-export const getAssistantById = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const assistant = await prismaClient.$transaction([
-      prismaClient.personnel.findUnique({
-        where: {
-          id: parseInt(req.params.id),
-          type: DENTIST_TYPE,
-        },
-        select: {
-          id: true,
-          nationalID: true,
-          name: true,
-          dob: true,
-          gender: true,
-          phone: true,
-        },
-      }),
-    ]);
-    res.status(200).json(messageResponse(200, assistant));
-  } catch (error) {
-    next(error);
-    res.status(500).send("Internal Server Error");
-  }
-};
-
 export const getPatientById = async (
   req: Request,
   res: Response,
@@ -201,66 +72,6 @@ export const getPatientById = async (
       }),
     ]);
     res.status(200).json(messageResponse(200, patient));
-  } catch (error) {
-    next(error);
-    res.status(500).send("Internal Server Error");
-  }
-};
-
-export const getSessions = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    let { limit, page, today } = req.query;
-    let where = {};
-    if (!limit) {
-      return res.status(400).json(messageResponse(400, "limit is required"));
-    }
-    if (!page) {
-      page = "0";
-    }
-    if (today === "true") {
-      where = {
-        session: {
-          time: {
-            gte: new Date(new Date().setHours(0, 0, 0, 0)),
-            lte: new Date(new Date().setHours(23, 59, 59, 999)),
-          },
-        },
-      };
-    }
-
-    const [total, listSession] = await prismaClient.$transaction([
-      prismaClient.session.count({ where }),
-      prismaClient.session.findMany({
-        take: Number(limit),
-        skip: Number(page) * Number(limit),
-        where,
-        orderBy: {
-          time: "desc",
-        },
-        select: {
-          id: true,
-          time: true,
-          status: true,
-          note: true,
-          patientID: true,
-          roomID: true,
-          type: true,
-          dentistID: true,
-          assistantID: true,
-        },
-      }),
-    ]);
-
-    res.status(200).json(
-      messageResponse(200, {
-        list: listSession,
-        total: total,
-      })
-    );
   } catch (error) {
     next(error);
     res.status(500).send("Internal Server Error");
@@ -389,8 +200,9 @@ export const getAppointmentRequest = async (
   }
 };
 
-//edited
 export const getPatients = getPersonnelFollowingType(PATIENT_TYPE);
+
+export const getAssistants = getPersonnelFollowingType(ASSISTANT_TYPE);
 
 export const getDentists = async (
   request: Request,
@@ -544,86 +356,31 @@ export const postExamination = async (
     const { patientID, dentistID, roomID, note, assistantID, time } =
       request.body;
 
-    if (!patientID || !dentistID || !roomID || !time) {
-      return response
-        .status(400)
-        .json(messageResponse(400, "You are missing some fields !"));
+    const result = await postSession(
+      patientID,
+      dentistID,
+      roomID,
+      note,
+      assistantID,
+      time,
+      sessionType.EXAMINATION
+    );
+
+    if (result.statusCode !== 200) {
+      return response.status(result.statusCode).json(result);
     }
-
-    const existedPatient = !!(await prismaClient.personnel.findUnique({
-      where: {
-        id: Number(patientID),
-      },
-    }));
-
-    if (!existedPatient) {
-      return response
-        .status(400)
-        .json(messageResponse(400, "Patient is not exist"));
-    }
-
-    const existedDentist = !!(await prismaClient.personnel.findUnique({
-      where: {
-        id: Number(dentistID),
-      },
-    }));
-
-    if (!existedDentist) {
-      return response
-        .status(400)
-        .json(messageResponse(400, "Dentist is not exist"));
-    }
-
-    const existedRoom = !!(await prismaClient.room.findUnique({
-      where: {
-        id: Number(roomID),
-      },
-    }));
-
-    if (!existedRoom) {
-      return response
-        .status(400)
-        .json(messageResponse(400, "Room is not exist"));
-    }
-
-    if (assistantID) {
-      const existedAssistant = !!(await prismaClient.personnel.findUnique({
-        where: {
-          id: Number(assistantID),
-        },
-      }));
-
-      if (!existedAssistant) {
-        return response
-          .status(400)
-          .json(messageResponse(400, "Assistant is not exist"));
-      }
-    }
-
-    const session = await prismaClient.session.create({
-      data: {
-        patientID: Number(patientID),
-        dentistID: Number(dentistID),
-        assistantID: assistantID ? Number(assistantID) : null,
-        roomID: Number(roomID),
-        note,
-        time: new Date(time),
-        type: sessionType.EXAMINATION,
-        status: sessionStatus.SCHEDULED,
-      },
-    });
 
     await prismaClient.examinationSession.create({
       data: {
         Session: {
           connect: {
-            id: session.id,
+            id: result.data.id,
           },
         },
       },
     });
 
-    return response.status(200).json(messageResponse(200, session));
+    return response.status(200).json(messageResponse(200, result.data));
   } catch (error) {
     next(error);
   }
@@ -667,3 +424,109 @@ export const getTreatmentSessions = getSessionFollowingType(
 );
 
 export const getTreatmentSessionInfo = getTreatmentInfoFunction();
+
+export const getCategoryList = async (
+  _: Request,
+  response: Response,
+  next: NextFunction
+) => {
+  try {
+    const categories = await prismaClient.category.findMany({
+      include: {
+        Procedure: true,
+      },
+    });
+
+    return response.status(200).json(messageResponse(200, categories));
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getToothList = async (
+  _: Request,
+  response: Response,
+  next: NextFunction
+) => {
+  try {
+    const teeth = await prismaClient.tooth.findMany();
+
+    return response.status(200).json(messageResponse(200, teeth));
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const postTreatmentSession = async (
+  request: Request,
+  response: Response,
+  next: NextFunction
+) => {
+  try {
+    const {
+      time,
+      patientID,
+      dentistID,
+      assistantID,
+      roomID,
+      note,
+      healthNote,
+      description,
+      categoryID,
+      teeth,
+    } = request.body;
+
+    const result = await postSession(
+      patientID,
+      dentistID,
+      roomID,
+      note,
+      assistantID,
+      time,
+      sessionType.TREATMENT
+    );
+
+    if (result.statusCode !== 200) {
+      return response.status(result.statusCode).json(result);
+    }
+
+    const treatmentSession = await prismaClient.treatmentSession.create({
+      data: {
+        Session: {
+          connect: {
+            id: result.data.id,
+          },
+        },
+        Category: {
+          connect: {
+            id: categoryID,
+          },
+        },
+        healthNote,
+        description,
+      },
+    });
+
+    teeth.forEach(async (tooth: { toothID: number; order: number }) => {
+      await prismaClient.toothSession.create({
+        data: {
+          order: tooth.order,
+          TreatmentSession: {
+            connect: {
+              id: treatmentSession.id,
+            },
+          },
+          Tooth: {
+            connect: {
+              id: tooth.toothID,
+            },
+          },
+        },
+      });
+    });
+
+    response.status(200).json(messageResponse(200, request.body));
+  } catch (error) {
+    next(error);
+  }
+};

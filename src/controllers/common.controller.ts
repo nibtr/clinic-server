@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import prismaClient from "../utils/prismaClient";
 import { messageResponse } from "../utils/messageResponse";
 import { skipTake } from "../utils/utils";
-import { PATIENT_TYPE, sessionType } from "../constant";
+import { PATIENT_TYPE, sessionStatus, sessionType } from "../constant";
 
 export const getPersonnelFollowingType = (type: string) => {
   return async (request: Request, response: Response, next: NextFunction) => {
@@ -243,4 +243,76 @@ export const getTreatmentInfoFunction = () => {
       next(error);
     }
   };
+};
+
+export const postSession = async (
+  patientID: number,
+  dentistID: number,
+  roomID: number,
+  note: string,
+  assistantID: number,
+  time: string,
+  type: string
+) => {
+  if (!patientID || !dentistID || !roomID || !time) {
+    return messageResponse(400, "You are missing some fields !");
+  }
+
+  const existedPatient = !!(await prismaClient.personnel.findUnique({
+    where: {
+      id: Number(patientID),
+    },
+  }));
+
+  if (!existedPatient) {
+    return messageResponse(400, "Patient is not exist");
+  }
+
+  const existedDentist = !!(await prismaClient.personnel.findUnique({
+    where: {
+      id: Number(dentistID),
+    },
+  }));
+
+  if (!existedDentist) {
+    return messageResponse(400, "Dentist is not exist");
+  }
+
+  const existedRoom = !!(await prismaClient.room.findUnique({
+    where: {
+      id: Number(roomID),
+    },
+  }));
+
+  if (!existedRoom) {
+    return messageResponse(400, "Room is not exist");
+  }
+
+  if (assistantID && assistantID !== -1) {
+    const existedAssistant = !!(await prismaClient.personnel.findUnique({
+      where: {
+        id: Number(assistantID),
+      },
+    }));
+
+    if (!existedAssistant) {
+      return messageResponse(400, "Assistant is not exist");
+    }
+  }
+
+  const session = await prismaClient.session.create({
+    data: {
+      patientID: Number(patientID),
+      dentistID: Number(dentistID),
+      assistantID:
+        assistantID && assistantID !== -1 ? Number(assistantID) : null,
+      roomID: Number(roomID),
+      note,
+      time: new Date(time),
+      type: type,
+      status: sessionStatus.SCHEDULED,
+    },
+  });
+
+  return messageResponse(200, session);
 };
