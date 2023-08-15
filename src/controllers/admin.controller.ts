@@ -14,11 +14,6 @@ export const createStaff = async (
 ) => {
     try {
         const hashPassword = await utils.hashPassword(req.body.password);
-        const data: any = {
-            username: req.body.username,
-            password: hashPassword,
-            email: req.body.email,
-        };
         const data2: any = {
             nationalID: req.body.nationalID,
             name: req.body.name,
@@ -27,7 +22,12 @@ export const createStaff = async (
             type: 'staff',
             phone: req.body.phone,
         };
-
+        const data: any = {
+            username: req.body.username,
+            password: hashPassword,
+            email: req.body.email,
+            personnelID: data2.id
+        };
         const result = await prismaClient.$transaction(async (tx) => {
             const account = await tx.account.create({
                 data,
