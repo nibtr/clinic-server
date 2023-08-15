@@ -19,7 +19,7 @@ export const createStaff = async (
             name: req.body.name,
             dob: req.body.dob,
             gender: req.body.gender,
-            type: 'staff',
+            type: 'STA',
             phone: req.body.phone,
         };
         const data: any = {
@@ -38,7 +38,7 @@ export const createStaff = async (
             return { account, personnel };
         });
 
-        return res.status(200).json(
+        return res.status(201).json(
             messageResponse(200, {
                 account: result.account,
                 personnel: result.personnel,
