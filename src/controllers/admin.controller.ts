@@ -39,7 +39,7 @@ export const createStaff = async (
         });
 
         return res.status(201).json(
-            messageResponse(200, {
+            messageResponse(201, {
                 account: result.account,
                 personnel: result.personnel,
             })
