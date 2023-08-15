@@ -4,3 +4,8 @@ import { messageResponse } from "../utils/messageResponse";
 import { NextFunction, Request, Response } from "express";
 
 export const getStaffs = getPersonnelFollowingType(STAFF_TYPE);
+
+export const createStaff = async (
+    req: Request,
+    res: Response,
+)
