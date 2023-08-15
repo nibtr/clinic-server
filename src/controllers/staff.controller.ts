@@ -530,3 +530,28 @@ export const postTreatmentSession = async (
     next(error);
   }
 };
+
+
+export const deleteAppointmentReq = async(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try{
+    let where: any = { iD: parseInt(req.params.id) };
+
+    const staff = await prismaClient.$transaction( async (tx) => {
+      await tx.appointmentRequest.delete({
+        where,
+      })
+    })
+
+    return res.status(200).json(
+      messageResponse(200,{status: staff})
+    )
+  }
+  catch (error){
+    next(error);
+    res.status(500).send("Internal Server Error");
+  }
+}
