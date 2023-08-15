@@ -538,10 +538,10 @@ export const deleteAppointmentReq = async(
   next: NextFunction
 ) => {
   try{
-    let where: any = { iD: parseInt(req.params.id) };
+    let where: any = { id: parseInt(req.params.id) };
 
     const staff = await prismaClient.$transaction( async (tx) => {
-      await tx.appointmentRequest.delete({
+      tx.appointmentRequest.delete({
         where,
       })
     })
