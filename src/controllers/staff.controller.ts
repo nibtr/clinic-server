@@ -538,14 +538,13 @@ export const deleteAppointmentReq = async(
   next: NextFunction
 ) => {
   try{
-    let where: any = { id: parseInt(req.params.id) };
-
     const appointmentRequest = await prismaClient.$transaction( async (tx) => {
       tx.appointmentRequest.delete({
-        where,
+        where:{
+          id: parseInt(req.params.id) 
+        }
       })
     })
-
     return res.status(200).json(
       messageResponse(200,{status: appointmentRequest})
     )
