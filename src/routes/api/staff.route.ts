@@ -24,5 +24,5 @@ router.get("/categories", staffController.getCategoryList);
 router.get("/teeth", staffController.getToothList);
 router.get("/assistants", staffController.getAssistants);
 router.post("/treatment-session", staffController.postTreatmentSession);
-
+router.delete("/appointment-req/:id", staffController.deleteAppointmentReq);
 export default router;

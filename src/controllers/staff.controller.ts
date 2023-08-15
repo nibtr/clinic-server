@@ -530,3 +530,26 @@ export const postTreatmentSession = async (
     next(error);
   }
 };
+
+
+export const deleteAppointmentReq = async(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try{
+    const appointmentRequest = await prismaClient.$transaction( async (tx) => {
+      tx.appointmentRequest.delete({
+        where:{
+          id: parseInt(req.params.id) 
+        }
+      })
+    })
+    return res.status(200).json(
+      messageResponse(200,{status: appointmentRequest})
+    )
+  }
+  catch (error){
+    next(error);
+  }
+}
