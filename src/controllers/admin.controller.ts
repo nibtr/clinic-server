@@ -55,19 +55,13 @@ export const getDentists = async (
     next: NextFunction
 ) => {
     try {
-        let { limit, page, today } = req.query;
+        let { limit, page } = req.query;
         let where: any = {type : 'DEN'}
         if (!limit) {
             return res.status(400).json(messageResponse(400, "limit is required"));
         }
         if (!page) {
             page = "0";
-        }
-        if (today === "true") {
-            where.session.time = {
-                gte: new Date(new Date().setHours(0, 0, 0, 0)),
-                lte: new Date(new Date().setHours(23, 59, 99, 999))
-            }
         }
         const [total, listDenstist] = await prismaClient.$transaction([
             prismaClient.personnel.count({
