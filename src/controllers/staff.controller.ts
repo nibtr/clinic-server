@@ -5,6 +5,7 @@ import {
   ASSISTANT_TYPE,
   DENTIST_TYPE,
   PATIENT_TYPE,
+  procedures,
   sessionStatus,
   sessionType,
   STAFF_TYPE,
@@ -531,25 +532,15 @@ export const postTreatmentSession = async (
   }
 };
 
-
-export const deleteAppointmentReq = async(
+export const deleteAppointmentReq = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  try{
-    const appointmentRequest = await prismaClient.$transaction( async (tx) => {
-      tx.appointmentRequest.delete({
-        where:{
-          id: parseInt(req.params.id) 
-        }
-      })
-    })
-    return res.status(200).json(
-      messageResponse(200,{status: appointmentRequest})
-    )
-  }
-  catch (error){
+  try {
+    await prismaClient.$executeRaw`EXEC ${procedures.deleteAppointmentRequest} ${req.params.id}`;
+    return res.status(200).json(messageResponse(200, "OK"));
+  } catch (error) {
     next(error);
   }
-}
+};

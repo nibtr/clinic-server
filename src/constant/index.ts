@@ -20,3 +20,7 @@ export const sessionType = {
   EXAMINATION: "EXA",
   REEXAMINATION: "REX",
 };
+
+export const procedures = {
+  deleteAppointmentRequest: "delAppoint",
+};
