@@ -85,7 +85,6 @@ export const getRoomsFunction = () => {
   };
 };
 
-//edited
 export const getSessionFollowingType = (type: string) => {
   return async (request: Request, response: Response, next: NextFunction) => {
     let { limit, page, today } = request.query;
@@ -154,7 +153,6 @@ export const getSessionFollowingType = (type: string) => {
   };
 };
 
-//edited
 export const getExaminationInfoFunction = () => {
   return async (request: Request, response: Response, next: NextFunction) => {
     try {
@@ -192,7 +190,6 @@ export const getExaminationInfoFunction = () => {
   };
 };
 
-//edited
 export const getTreatmentInfoFunction = () => {
   return async (request: Request, response: Response, next: NextFunction) => {
     try {
@@ -217,7 +214,11 @@ export const getTreatmentInfoFunction = () => {
               Room: true,
             },
           },
-          Category: true,
+          Category: {
+            include: {
+              Procedure: true,
+            },
+          },
           Prescription: {
             include: {
               Drug: true,
