@@ -1,4 +1,5 @@
 export const STAFF_TYPE = "STA";
+export const ADMIN_TYPE = "ADM";
 export const PATIENT_TYPE = "PAT";
 export const DENTIST_TYPE = "DEN";
 export const ASSISTANT_TYPE = "AST";
