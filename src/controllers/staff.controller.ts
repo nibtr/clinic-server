@@ -55,23 +55,25 @@ export const getPatientById = async (
   next: NextFunction
 ) => {
   try {
-    const patient = await prismaClient.$transaction([
-      prismaClient.patient.findUnique({
-        where: {
-          id: parseInt(req.params.id),
+    const patient = await prismaClient.patient.findUnique({
+      where: {
+        id: parseInt(req.params.id),
+      },
+      include: {
+        PaymentRecord: true,
+        Session: {
+          where: {
+            type: sessionType.TREATMENT,
+          },
+          include: {
+            Patient: true,
+            Dentist: true,
+            Room: true,
+          },
         },
-        select: {
-          id: true,
-          nationalID: true,
-          name: true,
-          dob: true,
-          gender: true,
-          phone: true,
-          drugContraindication: true,
-          allergyStatus: true,
-        },
-      }),
-    ]);
+      },
+    });
+
     res.status(200).json(messageResponse(200, patient));
   } catch (error) {
     next(error);
