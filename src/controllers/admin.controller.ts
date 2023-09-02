@@ -48,3 +48,56 @@ export const createStaff = async (
         next(error);
     }
 };
+
+export const getDentists = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        let { limit, page } = req.query;
+        let where: any = {type : 'DEN'}
+        if (!limit) {
+            return res.status(400).json(messageResponse(400, "limit is required"));
+        }
+        if (!page) {
+            page = "0";
+        }
+        const [total, listDenstist] = await prismaClient.$transaction([
+            prismaClient.personnel.count({
+                where
+            }),
+            prismaClient.personnel.findMany({
+                take: Number(limit),
+                skip: Number(page) * Number(limit),
+                where,
+                select:{
+                    name: true,
+                    dob: true,
+                    gender: true,
+                    phone: true,
+                    nationalID: true,
+                    Schedule:{
+                        select:{
+                            dayID: true,
+                            Day:{
+                                select:{
+                                    day: true,
+                                }
+                            }
+                        }
+                    }
+                }
+            })
+        ]);
+        return res.status(200).json(
+            messageResponse(200, {
+                total: total,
+                list: listDenstist
+            })
+        )
+    }
+    catch(error){
+        next(error)
+    }
+}
